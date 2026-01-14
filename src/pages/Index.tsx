@@ -46,7 +46,7 @@ export default function Index() {
         .from('products')
         .select(`
           *,
-          profiles:seller_id (
+          profiles (
             full_name,
             hostel_name,
             phone_number

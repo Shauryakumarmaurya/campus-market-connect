@@ -53,6 +53,7 @@ export default function Auth() {
         if (authData.user) {
           const { error: profileError } = await supabase.from('profiles').insert({
             id: authData.user.id,
+            email: formData.email.trim(),
             full_name: formData.fullName.trim(),
             hostel_name: formData.hostelName.trim(),
             phone_number: cleanPhone,

@@ -53,11 +53,15 @@ export function CategorySection({
             phone_number
           )
         `)
-                .eq('status', 'available')
-                .neq('seller_id', user!.id)
+                .eq('status', 'active')
                 .lt('report_count', 10)
                 .order('created_at', { ascending: false })
                 .limit(limit);
+
+            // Only exclude own products if logged in
+            if (user) {
+                query = query.neq('seller_id', user.id);
+            }
 
             if (categoryFilter) {
                 query = query.eq('category', categoryFilter);
@@ -67,7 +71,7 @@ export function CategorySection({
             if (error) throw error;
             return data as Product[];
         },
-        enabled: !!user,
+        enabled: true,
     });
 
     const getRelativeTime = (createdAt: string | null | undefined) => {
@@ -97,16 +101,26 @@ export function CategorySection({
         }
     };
 
-    // Don't render section if no products
+    // If no products, show the empty state message instead of hiding
     if (!isLoading && (!products || products.length === 0)) {
-        return null;
+        return (
+            <section className="mb-8">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-bold text-slate-900">{title}</h2>
+                </div>
+                <div className="flex flex-col items-center justify-center p-8 bg-slate-50 dark:bg-[#161B22] rounded-xl border border-dashed border-gray-200 dark:border-gray-800">
+                    <Package className="h-8 w-8 text-gray-300 mb-2" />
+                    <p className="text-sm text-gray-500 font-medium">No active listings in this category right now</p>
+                </div>
+            </section>
+        );
     }
 
     return (
         <section className="mb-8">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-slate-900">{title}</h2>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-gray-100">{title}</h2>
                 {onViewAll && (
                     <button
                         onClick={onViewAll}

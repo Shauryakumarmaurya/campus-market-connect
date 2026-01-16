@@ -99,7 +99,14 @@ export default function MyCart() {
         e.stopPropagation();
         if (product.profiles?.phone_number) {
             const phoneNumber = product.profiles.phone_number.replace(/[^0-9]/g, '');
-            const message = encodeURIComponent(`Hi, I am interested in "${product.title}"`);
+            const buyerName = user?.user_metadata?.full_name || 'a student';
+            const sellerName = product.profiles.full_name || 'Seller';
+            const productTitle = product.title;
+            const imageUrl = product.image_url ? ` (Link to photo: ${product.image_url})` : '';
+
+            const messageText = `Hi ${sellerName}, I am ${buyerName}. I saw your listing for ${productTitle} on NextBatch. Is it still available?${imageUrl}`;
+            const message = encodeURIComponent(messageText);
+
             window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
         } else {
             toast.error('Seller phone number not available');
@@ -119,13 +126,13 @@ export default function MyCart() {
     }
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-slate-50 dark:bg-background">
             <Navbar />
 
             <main className="container mx-auto px-4 py-6">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-foreground">My Cart</h1>
-                    <p className="text-muted-foreground mt-1">Items you've saved for later</p>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My Cart</h1>
+                    <p className="text-slate-500 dark:text-slate-400 mt-1">Items you've saved for later</p>
                 </div>
 
                 {isLoading ? (
@@ -137,7 +144,7 @@ export default function MyCart() {
                         {savedItems.map((item) => (
                             <div
                                 key={item.id}
-                                className="flex items-center gap-4 p-4 bg-card rounded-lg border border-border group hover:border-primary/50 transition-colors"
+                                className="flex items-center gap-4 p-4 bg-white dark:bg-[#161B22] rounded-lg border border-gray-200 dark:border-gray-800 group hover:border-emerald-500/50 transition-colors"
                             >
                                 {/* Left: Clickable Image */}
                                 <div

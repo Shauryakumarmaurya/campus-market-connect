@@ -101,7 +101,7 @@ export default function Auth() {
             <img
               src="/iitd-campus.png"
               alt="IIT Delhi Campus"
-              className="w-full h-full object-cover opacity-60 mix-blend-overlay"
+              className="w-full h-full object-cover opacity-100 mix-blend-overlay"
             />
             {/* Deep overlay ensures branding is readable in both light and dark modes */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F1A] via-[#0B0F1A]/40 to-transparent" />

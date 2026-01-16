@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Plus, Store, Package, ShoppingCart, UserPen, LogOut, Heart } from 'lucide-react';
 import { SellItemModal } from './SellItemModal';
+import { ThemeToggle } from './ThemeToggle';
 
 export function Navbar() {
   const { user, profile, signOut } = useAuth();
@@ -39,14 +40,14 @@ export function Navbar() {
   return (
     <>
       {/* Glassmorphism Navbar */}
-      <nav className="sticky top-0 z-50 w-full bg-white/70 bg-gradient-to-r from-white/60 via-white/80 to-emerald-50/50 backdrop-blur-xl border-b border-white/20 shadow-[0_4px_30px_rgba(0,0,0,0.03)] transition-all duration-300">
+      <nav className="sticky top-0 z-50 w-full bg-white/70 dark:bg-[#0B0F1A]/80 backdrop-blur-xl border-b border-emerald-100/50 dark:border-emerald-900/30 transition-all duration-300">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
                 <Store className="h-5 w-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-slate-900">NextBatch</span>
+              <span className="text-xl font-bold text-slate-900 dark:text-white">NextBatch</span>
             </Link>
 
             {user ? (
@@ -90,9 +91,12 @@ export function Navbar() {
                   Sell Item
                 </Button>
 
+                {/* Theme Toggle */}
+                <ThemeToggle />
+
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                    <button className="rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ml-2">
                       <Avatar className="h-9 w-9 cursor-pointer hover:opacity-80 transition-opacity border-2 border-emerald-100">
                         <AvatarFallback className="bg-emerald-100 text-emerald-700 font-medium">
                           {getInitials(profile?.full_name)}

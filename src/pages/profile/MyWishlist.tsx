@@ -121,13 +121,13 @@ export default function MyWishlist() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F1A]">
             <Navbar />
 
-            <main className="container mx-auto px-4 py-6">
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-slate-900">My Wishlist</h1>
-                    <p className="text-slate-500 mt-1">Items you've saved for later</p>
+            <main className="container mx-auto px-4 py-8">
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">My Wishlist</h1>
+                    <p className="text-slate-500 dark:text-slate-400 mt-1">Items you've watching</p>
                 </div>
 
                 {isLoading ? (
@@ -135,7 +135,7 @@ export default function MyWishlist() {
                         <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
                     </div>
                 ) : products.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                         {products.map((product) => (
                             <ProductCard
                                 key={product.id}
@@ -153,9 +153,9 @@ export default function MyWishlist() {
                     </div>
                 ) : (
                     <div className="text-center py-16">
-                        <Heart className="h-16 w-16 text-slate-300 mx-auto mb-4" />
-                        <p className="text-slate-500 text-lg">Your wishlist is empty</p>
-                        <p className="text-slate-400 text-sm mt-1">
+                        <Heart className="h-16 w-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+                        <p className="text-slate-500 dark:text-slate-300 text-lg">Your wishlist is empty</p>
+                        <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">
                             Tap the heart on any product to save it here
                         </p>
                     </div>

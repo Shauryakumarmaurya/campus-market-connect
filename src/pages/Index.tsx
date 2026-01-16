@@ -41,11 +41,7 @@ export default function Index() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/auth');
-    }
-  }, [user, authLoading, navigate]);
+  // Removed auth redirect for public access
 
   // Fetch user's own listings for the horizontal section
   const { data: myListings, isLoading: myListingsLoading } = useQuery({
@@ -61,7 +57,7 @@ export default function Index() {
             phone_number
           )
         `)
-        .eq('seller_id', user!.id)
+        .eq('seller_id', user?.id)
         .order('created_at', { ascending: false })
         .limit(10);
 
@@ -85,10 +81,14 @@ export default function Index() {
             phone_number
           )
         `)
-        .eq('status', 'available')
-        .neq('seller_id', user!.id)
+        .eq('status', 'active')
         .lt('report_count', 10)
         .order('created_at', { ascending: false });
+
+      // Exclude own posts only if user is logged in
+      if (user) {
+        query = query.neq('seller_id', user.id);
+      }
 
       if (selectedCategory !== 'all') {
         query = query.eq('category', selectedCategory);
@@ -102,7 +102,8 @@ export default function Index() {
       if (error) throw error;
       return data as Product[];
     },
-    enabled: !!user && (selectedCategory !== 'all' || searchQuery !== ''),
+    // Fetch by default (public access)
+    enabled: true,
   });
 
   const handleProductClick = (product: Product) => {
@@ -118,15 +119,13 @@ export default function Index() {
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  // Removed null return for !user to allow public access
 
   // Check if we're on the "All" tab without search
   const showCategorizedView = selectedCategory === 'all' && searchQuery === '';
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-background">
       <Navbar />
 
       <main className="container mx-auto px-4 py-6">
@@ -136,13 +135,13 @@ export default function Index() {
         </div>
 
         {/* Section 1: My Listings - Stat Cards */}
-        {!myListingsLoading && myListings && myListings.length > 0 && (
+        {user && !myListingsLoading && myListings && myListings.length > 0 && (
           <section className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">My Active Listings</h2>
+              <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">My Active Listings</h2>
               <Link
                 to="/profile/listings"
-                className="text-sm text-primary hover:underline flex items-center gap-1 font-medium"
+                className="text-sm text-primary dark:text-emerald-400 hover:underline flex items-center gap-1 font-medium"
               >
                 Manage All
                 <ChevronRight className="h-4 w-4" />
@@ -187,8 +186,8 @@ export default function Index() {
           </section>
         )}
 
-        {/* Hero Banner - Start Selling (only shown when user has no listings) */}
-        {!myListingsLoading && (!myListings || myListings.length === 0) && (
+        {/* Hero Banner - Start Selling (only shown when user not logged in or has no listings) */}
+        {(!user || (!myListingsLoading && (!myListings || myListings.length === 0))) && (
           <section className="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-800 via-emerald-600 to-teal-500 shadow-lg shadow-emerald-200">
             {/* Decorative background pattern */}
             <div className="absolute inset-0 opacity-10">
@@ -200,14 +199,20 @@ export default function Index() {
             <div className="relative px-6 py-8 md:px-8 md:py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
                 <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
-                  Turn your unused items into cash? 💰
+                  Pass it to the NextBatch. 🚀
                 </h2>
                 <p className="text-white/80 text-sm md:text-base max-w-md">
-                  Sell your books, cycles, and hostel gear to juniors in seconds.
+                  The trusted marketplace for students to buy and sell cycles, books, and electronics.
                 </p>
               </div>
               <Button
-                onClick={() => document.querySelector<HTMLButtonElement>('[data-sell-button]')?.click()}
+                onClick={() => {
+                  if (!user) {
+                    navigate('/auth', { state: { from: location.pathname } });
+                    return;
+                  }
+                  document.querySelector<HTMLButtonElement>('[data-sell-button]')?.click();
+                }}
                 className="bg-white text-emerald-700 hover:bg-white/90 font-bold px-6 py-5 text-base shadow-md w-full md:w-auto"
               >
                 <Plus className="h-5 w-5 mr-2" />
@@ -219,10 +224,10 @@ export default function Index() {
 
         {/* Section 2: Marketplace */}
         <section>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Marketplace</h2>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Marketplace</h2>
 
           {/* Sticky Category Filter Bar */}
-          <div className="sticky top-[60px] z-10 bg-white/95 backdrop-blur-sm py-4 -mx-4 px-4 border-b border-gray-100 mb-5">
+          <div className="sticky top-[60px] z-10 bg-white/95 dark:bg-[#0B0F1A]/95 backdrop-blur-sm py-4 -mx-4 px-4 border-b border-gray-100 dark:border-gray-800 mb-5">
             <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
           </div>
 
@@ -286,13 +291,13 @@ export default function Index() {
             // Specific Category or Search - Grid View
             <>
               {isLoading ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                   {Array.from({ length: 8 }).map((_, i) => (
                     <ProductCardSkeleton key={i} />
                   ))}
                 </div>
               ) : products && products.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                   {products.map((product) => (
                     <ProductCard
                       key={product.id}

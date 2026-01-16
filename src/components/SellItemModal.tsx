@@ -121,7 +121,7 @@ export function SellItemModal({ open, onOpenChange, productToEdit }: SellItemMod
         const { error } = await supabase.from('products').insert({
           ...productData,
           seller_id: user.id,
-          status: 'available',
+          status: 'active',
         });
 
         if (error) throw error;

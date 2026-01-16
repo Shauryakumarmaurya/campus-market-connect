@@ -41,6 +41,12 @@ export default function Auth() {
         toast.success('Welcome back!');
         navigate('/');
       } else {
+        // Validate IITD email domain
+        const emailDomain = formData.email.split('@')[1]?.toLowerCase();
+        if (emailDomain !== 'iitd.ac.in') {
+          throw new Error('Only IIT Delhi email addresses (@iitd.ac.in) are allowed');
+        }
+
         const phoneRegex = /^\+?[1-9]\d{9,14}$/;
         const cleanPhone = formData.phoneNumber.replace(/[\s-]/g, '');
         if (!phoneRegex.test(cleanPhone)) {

@@ -22,6 +22,8 @@ export type Database = {
           id: string
           image_url: string | null
           price: number
+          report_count: number
+          reported_by: string[] | null
           seller_id: string
           status: string | null
           title: string
@@ -33,6 +35,8 @@ export type Database = {
           id?: string
           image_url?: string | null
           price: number
+          report_count?: number
+          reported_by?: string[] | null
           seller_id: string
           status?: string | null
           title: string
@@ -44,6 +48,8 @@ export type Database = {
           id?: string
           image_url?: string | null
           price?: number
+          report_count?: number
+          reported_by?: string[] | null
           seller_id?: string
           status?: string | null
           title?: string
@@ -85,7 +91,83 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_items: {
+        Row: {
+          id: string
+          user_id: string
+          product_id: string
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          product_id: string
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          product_id?: string
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_items_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reports: {
+        Row: {
+          id: string
+          product_id: string
+          reporter_id: string
+          reason: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          reporter_id: string
+          reason: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          reporter_id?: string
+          reason?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
+
     Views: {
       [_ in never]: never
     }

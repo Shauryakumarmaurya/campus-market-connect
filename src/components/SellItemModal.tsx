@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,14 +11,24 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 
+interface ProductToEdit {
+  id: string;
+  title: string;
+  description: string | null;
+  price: number;
+  category: string;
+  image_url: string | null;
+}
+
 interface SellItemModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  productToEdit?: ProductToEdit | null;
 }
 
-const categories = ['Books', 'Electronics', 'Lab Coat', 'Cycle'];
+const categories = ['Books', 'Electronics', 'Lab Coat', 'Cycle', 'Other'];
 
-export function SellItemModal({ open, onOpenChange }: SellItemModalProps) {
+export function SellItemModal({ open, onOpenChange, productToEdit }: SellItemModalProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
@@ -30,6 +40,27 @@ export function SellItemModal({ open, onOpenChange }: SellItemModalProps) {
     price: '',
     category: '',
   });
+
+  const isEditMode = !!productToEdit;
+
+  // Pre-fill form when editing
+  useEffect(() => {
+    if (productToEdit && open) {
+      setFormData({
+        title: productToEdit.title,
+        description: productToEdit.description || '',
+        price: productToEdit.price.toString(),
+        category: productToEdit.category,
+      });
+      setImagePreview(productToEdit.image_url);
+      setImageFile(null);
+    } else if (!open) {
+      // Reset form when modal closes
+      setFormData({ title: '', description: '', price: '', category: '' });
+      setImageFile(null);
+      setImagePreview(null);
+    }
+  }, [productToEdit, open]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -49,8 +80,9 @@ export function SellItemModal({ open, onOpenChange }: SellItemModalProps) {
 
     setLoading(true);
     try {
-      let imageUrl = null;
+      let imageUrl = isEditMode ? productToEdit.image_url : null;
 
+      // Upload new image if provided
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop();
         const fileName = `${user.id}-${Date.now()}.${fileExt}`;
@@ -67,26 +99,41 @@ export function SellItemModal({ open, onOpenChange }: SellItemModalProps) {
         imageUrl = publicUrl;
       }
 
-      const { error } = await supabase.from('products').insert({
+      const productData = {
         title: formData.title.trim(),
         description: formData.description.trim() || null,
         price: parseFloat(formData.price),
         category: formData.category,
         image_url: imageUrl,
-        seller_id: user.id,
-        status: 'available',
-      });
+      };
 
-      if (error) throw error;
+      if (isEditMode) {
+        // UPDATE existing product
+        const { error } = await supabase
+          .from('products')
+          .update(productData)
+          .eq('id', productToEdit.id);
 
-      toast.success('Item listed successfully!');
+        if (error) throw error;
+        toast.success('Listing updated successfully!');
+      } else {
+        // INSERT new product
+        const { error } = await supabase.from('products').insert({
+          ...productData,
+          seller_id: user.id,
+          status: 'available',
+        });
+
+        if (error) throw error;
+        toast.success('Item listed successfully!');
+      }
+
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['my-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['my-listings-preview'] });
       onOpenChange(false);
-      setFormData({ title: '', description: '', price: '', category: '' });
-      setImageFile(null);
-      setImagePreview(null);
     } catch (error: any) {
-      toast.error(error.message || 'Failed to list item');
+      toast.error(error.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -96,7 +143,9 @@ export function SellItemModal({ open, onOpenChange }: SellItemModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Sell an Item</DialogTitle>
+          <DialogTitle className="text-xl font-bold">
+            {isEditMode ? 'Edit Listing' : 'Sell an Item'}
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
@@ -192,10 +241,10 @@ export function SellItemModal({ open, onOpenChange }: SellItemModalProps) {
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Listing...
+                {isEditMode ? 'Updating...' : 'Listing...'}
               </>
             ) : (
-              'List Item'
+              isEditMode ? 'Update Listing' : 'List Item'
             )}
           </Button>
         </form>

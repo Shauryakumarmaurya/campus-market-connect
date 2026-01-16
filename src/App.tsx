@@ -4,9 +4,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { CartProvider } from "@/contexts/CartContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import MyListings from "./pages/profile/MyListings";
+import MyCart from "./pages/profile/MyCart";
+import MyWishlist from "./pages/profile/MyWishlist";
+import EditProfile from "./pages/profile/EditProfile";
 
 const queryClient = new QueryClient();
 
@@ -17,11 +22,17 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <CartProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/profile/listings" element={<MyListings />} />
+              <Route path="/profile/cart" element={<MyCart />} />
+              <Route path="/profile/wishlist" element={<MyWishlist />} />
+              <Route path="/profile/edit" element={<EditProfile />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </CartProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

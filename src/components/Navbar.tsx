@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, Store, Package, ShoppingCart, UserPen, LogOut, Heart, Menu, X, MessageSquare } from 'lucide-react';
+import { Plus, Store, Package, ShoppingCart, UserPen, LogOut, Heart, Menu, X, MessageSquare, LifeBuoy } from 'lucide-react';
 import { SellItemModal } from './SellItemModal';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -153,11 +153,35 @@ export function Navbar() {
                       </Avatar>
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuContent align="end" className="w-56">
+                    <div className="bg-slate-50 dark:bg-slate-800 p-3 flex items-center gap-3 rounded-t-sm">
+                      <Avatar className="h-8 w-8 border border-emerald-100">
+                        <AvatarFallback className="bg-emerald-100 text-emerald-700 font-medium text-xs">
+                          {getInitials(profile?.full_name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col overflow-hidden">
+                        <span className="font-bold text-sm truncate text-slate-900 dark:text-white">
+                          {profile?.full_name || 'User'}
+                        </span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                          {profile?.email}
+                        </span>
+                      </div>
+                    </div>
+                    <DropdownMenuSeparator />
+
                     <DropdownMenuItem asChild>
                       <Link to="/profile/listings" className="flex items-center cursor-pointer">
-                        <Package className="h-4 w-4 mr-2" />
+                        <Store className="h-4 w-4 mr-2" />
                         My Listings
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile/wishlist" className="flex items-center cursor-pointer">
+                        <Heart className="h-4 w-4 mr-2" />
+                        Saved Items
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -166,6 +190,7 @@ export function Navbar() {
                         My Cart
                       </Link>
                     </DropdownMenuItem>
+
                     <DropdownMenuItem asChild>
                       <Link to="/profile/edit" className="flex items-center cursor-pointer">
                         <UserPen className="h-4 w-4 mr-2" />
@@ -199,17 +224,31 @@ export function Navbar() {
             {/* Mobile Menu Button */}
             <div className="flex items-center gap-2 md:hidden">
               {user && (
-                <Link
-                  to="/profile/cart"
-                  className="relative p-2 rounded-full text-emerald-600"
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                  {cartCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
-                      {cartCount > 9 ? '9+' : cartCount}
-                    </span>
-                  )}
-                </Link>
+                <>
+                  <Link
+                    to="/messages"
+                    className="relative p-2 rounded-full text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
+                  >
+                    <MessageSquare className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[14px] flex items-center justify-center border-2 border-white dark:border-[#0B0F1A]">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                  <ThemeToggle />
+                  <Link
+                    to="/profile/cart"
+                    className="relative p-2 rounded-full text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
+                  >
+                    <ShoppingCart className="h-5 w-5" />
+                    {cartCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                        {cartCount > 9 ? '9+' : cartCount}
+                      </span>
+                    )}
+                  </Link>
+                </>
               )}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -263,19 +302,7 @@ export function Navbar() {
                       <Heart className="h-5 w-5 text-emerald-600" />
                       Wishlist
                     </Link>
-                    <Link
-                      to="/messages"
-                      onClick={closeMobileMenu}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
-                    >
-                      <MessageSquare className="h-5 w-5 text-emerald-600" />
-                      Messages
-                      {unreadCount > 0 && (
-                        <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                          {unreadCount > 9 ? '9+' : unreadCount}
-                        </span>
-                      )}
-                    </Link>
+
                     <Link
                       to="/profile/cart"
                       onClick={closeMobileMenu}
@@ -306,7 +333,7 @@ export function Navbar() {
                   <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200">
                       <span className="text-sm">Theme</span>
-                      <ThemeToggle />
+                      {/* Theme toggle moved to header */}
                     </div>
                     <Button
                       variant="ghost"

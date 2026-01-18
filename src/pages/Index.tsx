@@ -121,7 +121,7 @@ export default function Index() {
             {/* Headline */}
             <div className="text-center mb-8">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-3">
-                The Official Marketplace for{' '}
+                The Marketplace for{' '}
                 <span className="text-emerald-600">IIT Delhi</span>
               </h1>
               <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">

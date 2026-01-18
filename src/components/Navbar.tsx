@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, Store, Package, ShoppingCart, UserPen, LogOut, Heart, Menu, X } from 'lucide-react';
+import { Plus, Store, Package, ShoppingCart, UserPen, LogOut, Heart, Menu, X, MessageSquare } from 'lucide-react';
 import { SellItemModal } from './SellItemModal';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -65,6 +65,15 @@ export function Navbar() {
                   title="Wishlist"
                 >
                   <Heart className="h-6 w-6" />
+                </Link>
+
+                {/* Messages Icon */}
+                <Link
+                  to="/messages"
+                  className="relative p-2 rounded-full text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
+                  title="Messages"
+                >
+                  <MessageSquare className="h-6 w-6" />
                 </Link>
 
                 {/* Cart Icon with Badge */}
@@ -218,6 +227,14 @@ export function Navbar() {
                     >
                       <Heart className="h-5 w-5 text-emerald-600" />
                       Wishlist
+                    </Link>
+                    <Link
+                      to="/messages"
+                      onClick={closeMobileMenu}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
+                    >
+                      <MessageSquare className="h-5 w-5 text-emerald-600" />
+                      Messages
                     </Link>
                     <Link
                       to="/profile/cart"

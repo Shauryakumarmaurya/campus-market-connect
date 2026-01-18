@@ -11,14 +11,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Loader2, Store, Mail, CheckCircle2 } from 'lucide-react';
+import { Loader2, Store, Mail, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+
+type AuthMode = 'login' | 'signup' | 'forgot-password';
 
 export default function Auth() {
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(true);
+  const [mode, setMode] = useState<AuthMode>('login');
   const [loading, setLoading] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [showResetEmailSentDialog, setShowResetEmailSentDialog] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -32,7 +35,7 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      if (isLogin) {
+      if (mode === 'login') {
         const { error } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
@@ -40,7 +43,7 @@ export default function Auth() {
         if (error) throw error;
         toast.success('Welcome back!');
         navigate('/');
-      } else {
+      } else if (mode === 'signup') {
         // Validate IITD email domain
         const emailDomain = formData.email.split('@')[1]?.toLowerCase();
         if (emailDomain !== 'iitd.ac.in') {
@@ -76,6 +79,12 @@ export default function Auth() {
         }
 
         setShowSuccessDialog(true);
+      } else if (mode === 'forgot-password') {
+        const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        setShowResetEmailSentDialog(true);
       }
     } catch (error: any) {
       toast.error(error.message || 'Something went wrong');
@@ -86,7 +95,7 @@ export default function Auth() {
 
   const handleSuccessDialogClose = () => {
     setShowSuccessDialog(false);
-    setIsLogin(true);
+    setMode('login');
     setFormData({
       email: '',
       password: '',
@@ -94,6 +103,34 @@ export default function Auth() {
       hostelName: '',
       phoneNumber: '',
     });
+  };
+
+  const handleResetEmailDialogClose = () => {
+    setShowResetEmailSentDialog(false);
+    setMode('login');
+    setFormData({ ...formData, email: '' });
+  };
+
+  const getHeading = () => {
+    switch (mode) {
+      case 'login':
+        return 'Welcome back';
+      case 'signup':
+        return 'Create account';
+      case 'forgot-password':
+        return 'Reset password';
+    }
+  };
+
+  const getSubheading = () => {
+    switch (mode) {
+      case 'login':
+        return 'Enter your details to access your account';
+      case 'signup':
+        return 'Join the campus marketplace today';
+      case 'forgot-password':
+        return "Enter your email and we'll send you a reset link";
+    }
   };
 
   return (
@@ -145,17 +182,29 @@ export default function Auth() {
               <h1 className="text-3xl font-bold dark:text-white">NextBatch</h1>
             </div>
 
+            {/* Back button for forgot password */}
+            {mode === 'forgot-password' && (
+              <button
+                type="button"
+                onClick={() => setMode('login')}
+                className="flex items-center gap-2 text-sm text-slate-500 hover:text-[#10B981] mb-6 transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to login
+              </button>
+            )}
+
             <div className="mb-10 text-center lg:text-left">
               <h2 className="text-3xl font-bold text-foreground dark:text-white">
-                {isLogin ? 'Welcome back' : 'Create account'}
+                {getHeading()}
               </h2>
               <p className="text-muted-foreground mt-2">
-                {isLogin ? 'Enter your details to access your account' : 'Join the campus marketplace today'}
+                {getSubheading()}
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
-              {!isLogin && (
+              {mode === 'signup' && (
                 <>
                   <div>
                     <Label htmlFor="fullName" className="dark:text-gray-200">Full Name</Label>
@@ -197,7 +246,9 @@ export default function Auth() {
               )}
 
               <div>
-                <Label htmlFor="email" className="dark:text-gray-200">College Email ID</Label>
+                <Label htmlFor="email" className="dark:text-gray-200">
+                  {mode === 'forgot-password' ? 'Email Address' : 'College Email ID'}
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -209,18 +260,31 @@ export default function Auth() {
                 />
               </div>
 
-              <div>
-                <Label htmlFor="password" title="Forgot password?" className="dark:text-gray-200">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="••••••••"
-                  className="dark:bg-gray-900 dark:border-gray-700"
-                  required
-                />
-              </div>
+              {mode !== 'forgot-password' && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password" className="dark:text-gray-200">Password</Label>
+                    {mode === 'login' && (
+                      <button
+                        type="button"
+                        onClick={() => setMode('forgot-password')}
+                        className="text-sm text-[#10B981] hover:underline font-medium"
+                      >
+                        Forgot password?
+                      </button>
+                    )}
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder="••••••••"
+                    className="dark:bg-gray-900 dark:border-gray-700"
+                    required
+                  />
+                </div>
+              )}
 
               <Button
                 type="submit"
@@ -230,27 +294,30 @@ export default function Auth() {
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    {isLogin ? 'Signing in...' : 'Creating account...'}
+                    {mode === 'login' ? 'Signing in...' : mode === 'signup' ? 'Creating account...' : 'Sending link...'}
                   </>
                 ) : (
-                  <>{isLogin ? 'Sign In' : 'Create Account'}</>
+                  <>{mode === 'login' ? 'Sign In' : mode === 'signup' ? 'Create Account' : 'Send Reset Link'}</>
                 )}
               </Button>
             </form>
 
-            <div className="mt-8 text-center">
-              <button
-                type="button"
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-sm font-semibold text-[#10B981] hover:underline"
-              >
-                {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
-              </button>
-            </div>
+            {mode !== 'forgot-password' && (
+              <div className="mt-8 text-center">
+                <button
+                  type="button"
+                  onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+                  className="text-sm font-semibold text-[#10B981] hover:underline"
+                >
+                  {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
+      {/* Signup Success Dialog */}
       <Dialog open={showSuccessDialog} onOpenChange={() => { }}>
         <DialogContent className="sm:max-w-md dark:bg-[#161B22] dark:border-gray-800" onPointerDownOutside={(e) => e.preventDefault()}>
           <DialogHeader className="text-center sm:text-center">
@@ -273,6 +340,31 @@ export default function Auth() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Password Reset Email Sent Dialog */}
+      <Dialog open={showResetEmailSentDialog} onOpenChange={() => { }}>
+        <DialogContent className="sm:max-w-md dark:bg-[#161B22] dark:border-gray-800" onPointerDownOutside={(e) => e.preventDefault()}>
+          <DialogHeader className="text-center sm:text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+              <Mail className="h-8 w-8 text-[#10B981]" />
+            </div>
+            <DialogTitle className="text-2xl font-bold dark:text-white">Check your Inbox</DialogTitle>
+            <DialogDescription className="text-base mt-2 dark:text-gray-400">
+              We have sent a password reset link to your email. Click the link to set a new password.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-6">
+            <Button
+              onClick={handleResetEmailDialogClose}
+              className="w-full py-6 text-lg font-semibold bg-[#10B981] hover:bg-[#0D9668] text-white"
+            >
+              <CheckCircle2 className="h-5 w-5 mr-2" />
+              Got it, Go to Login
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
+

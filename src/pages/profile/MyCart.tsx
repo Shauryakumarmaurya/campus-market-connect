@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Trash2, ShoppingCart, Package, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { ProductDetailsModal } from '@/components/ProductDetailsModal';
+import { ChatDrawer } from '@/components/ChatDrawer';
 
 interface SavedItem {
     id: string;
@@ -35,6 +36,7 @@ export default function MyCart() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [selectedProduct, setSelectedProduct] = useState<SavedItem['products'] | null>(null);
+    const [chatProduct, setChatProduct] = useState<SavedItem['products'] | null>(null);
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -95,22 +97,9 @@ export default function MyCart() {
         },
     });
 
-    const handleWhatsAppClick = (e: React.MouseEvent, product: SavedItem['products']) => {
+    const handleChatClick = (e: React.MouseEvent, product: SavedItem['products']) => {
         e.stopPropagation();
-        if (product.profiles?.phone_number) {
-            const phoneNumber = product.profiles.phone_number.replace(/[^0-9]/g, '');
-            const buyerName = user?.user_metadata?.full_name || 'a student';
-            const sellerName = product.profiles.full_name || 'Seller';
-            const productTitle = product.title;
-            const imageUrl = product.image_url ? ` (Link to photo: ${product.image_url})` : '';
-
-            const messageText = `Hi ${sellerName}, I am ${buyerName}. I saw your listing for ${productTitle} on NextBatch. Is it still available?${imageUrl}`;
-            const message = encodeURIComponent(messageText);
-
-            window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
-        } else {
-            toast.error('Seller phone number not available');
-        }
+        setChatProduct(product);
     };
 
     if (authLoading) {
@@ -181,8 +170,8 @@ export default function MyCart() {
                                 {/* Right: Action Buttons */}
                                 <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
                                     <button
-                                        onClick={(e) => handleWhatsAppClick(e, item.products)}
-                                        className="bg-green-500 text-white text-xs px-3 py-2 rounded-md hover:bg-green-600 transition-colors flex items-center gap-1.5 shadow-sm"
+                                        onClick={(e) => handleChatClick(e, item.products)}
+                                        className="bg-emerald-600 text-white text-xs px-3 py-2 rounded-md hover:bg-emerald-700 transition-colors flex items-center gap-1.5 shadow-sm"
                                     >
                                         <MessageCircle className="h-3.5 w-3.5" />
                                         Chat
@@ -221,6 +210,19 @@ export default function MyCart() {
                 open={!!selectedProduct}
                 onOpenChange={(open) => !open && setSelectedProduct(null)}
             />
+
+            {/* Chat Drawer */}
+            {chatProduct && (
+                <ChatDrawer
+                    open={!!chatProduct}
+                    onOpenChange={(open) => !open && setChatProduct(null)}
+                    productId={chatProduct.id}
+                    productTitle={chatProduct.title}
+                    productPrice={chatProduct.price}
+                    sellerId={chatProduct.seller_id}
+                    sellerName={chatProduct.profiles?.full_name || 'Seller'}
+                />
+            )}
         </div>
     );
 }

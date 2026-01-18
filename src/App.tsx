@@ -8,6 +8,8 @@ import { CartProvider } from "@/contexts/CartContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
+import Messages from "./pages/Messages";
 import NotFound from "./pages/NotFound";
 import MyListings from "./pages/profile/MyListings";
 import MyCart from "./pages/profile/MyCart";
@@ -28,6 +30,8 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/messages" element={<Messages />} />
                 <Route path="/profile/listings" element={<MyListings />} />
                 <Route path="/profile/cart" element={<MyCart />} />
                 <Route path="/profile/wishlist" element={<MyWishlist />} />

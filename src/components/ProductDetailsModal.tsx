@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { formatRupee } from '@/lib/formatRupee';
+import { ChatDrawer } from './ChatDrawer';
 
 interface Product {
   id: string;
@@ -52,6 +53,7 @@ export function ProductDetailsModal({ product, open, onOpenChange }: ProductDeta
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState<string>("");
   const [otherReason, setOtherReason] = useState("");
+  const [chatDrawerOpen, setChatDrawerOpen] = useState(false);
 
   // Helper to get saved items from localStorage
   const getSavedItems = (): string[] => {
@@ -151,26 +153,16 @@ export function ProductDetailsModal({ product, open, onOpenChange }: ProductDeta
 
   if (!product) return null;
 
-  const handleWhatsAppClick = () => {
+  const handleChatClick = () => {
     if (!user) {
       toast.error("Please login with your Kerberos ID to contact sellers.");
       onOpenChange(false);
       navigate('/auth', { state: { from: window.location.pathname } });
       return;
     }
-
-    if (product.profiles?.phone_number) {
-      const phoneNumber = product.profiles.phone_number.replace(/[^0-9]/g, '');
-      const buyerName = user.user_metadata?.full_name || 'a student';
-      const sellerName = product.profiles.full_name || 'Seller';
-      const productTitle = product.title;
-      const imageUrl = product.image_url ? ` (Link to photo: ${product.image_url})` : '';
-
-      const messageText = `Hi ${sellerName}, I am ${buyerName}. I saw your listing for ${productTitle} on NextBatch. Is it still available?${imageUrl}`;
-      const message = encodeURIComponent(messageText);
-
-      window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
-    }
+    // Close the modal first, then open chat
+    onOpenChange(false);
+    setChatDrawerOpen(true);
   };
 
   const handleCartToggle = async () => {
@@ -360,20 +352,19 @@ export function ProductDetailsModal({ product, open, onOpenChange }: ProductDeta
                     </Button>
                   ) : (
                     <div className="flex flex-col gap-3 w-full">
-                      {/* Primary Action: WhatsApp */}
+                      {/* Primary Action: Chat with Seller */}
                       <div className="relative">
                         {/* Pulsing glow effect behind button */}
-                        <div className="absolute -inset-0.5 bg-green-500 rounded-lg blur opacity-30 animate-pulse"></div>
+                        <div className="absolute -inset-0.5 bg-emerald-500 rounded-lg blur opacity-30 animate-pulse"></div>
 
                         <Button
-                          onClick={handleWhatsAppClick}
-                          className="relative w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-8 text-lg font-bold shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5"
-                          disabled={!product.profiles?.phone_number}
+                          onClick={handleChatClick}
+                          className="relative w-full bg-emerald-600 hover:bg-emerald-700 text-white py-8 text-lg font-bold shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5"
                         >
                           <MessageCircle className="h-6 w-6 mr-3 stroke-[2.5]" />
                           <div className="flex flex-col items-start">
-                            <span className="leading-none mb-1">Chat on WhatsApp</span>
-                            <span className="text-[10px] font-medium opacity-90 tracking-wide uppercase">Fastest way to buy</span>
+                            <span className="leading-none mb-1">Chat with Seller</span>
+                            <span className="text-[10px] font-medium opacity-90 tracking-wide uppercase">Secure in-app messaging</span>
                           </div>
                         </Button>
                       </div>
@@ -404,7 +395,7 @@ export function ProductDetailsModal({ product, open, onOpenChange }: ProductDeta
                       <div className="flex items-start gap-2 mt-2 px-1">
                         <Info className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
                         <p className="text-xs text-slate-400 leading-relaxed">
-                          <span className="font-medium text-slate-500">Tip:</span> Most sellers at IITD prefer a quick WhatsApp chat to finalize the deal.
+                          <span className="font-medium text-slate-500">Tip:</span> Chat directly with the seller to negotiate and finalize the deal securely.
                         </p>
                       </div>
                     </div>
@@ -589,6 +580,19 @@ export function ProductDetailsModal({ product, open, onOpenChange }: ProductDeta
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Chat Drawer */}
+      {product && (
+        <ChatDrawer
+          open={chatDrawerOpen}
+          onOpenChange={setChatDrawerOpen}
+          productId={product.id}
+          productTitle={product.title}
+          productPrice={product.price}
+          sellerId={product.seller_id}
+          sellerName={product.profiles?.full_name || 'Seller'}
+        />
+      )}
     </>
   );
 }

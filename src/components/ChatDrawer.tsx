@@ -162,24 +162,11 @@ export function ChatDrawer({
             }
 
             setMessages(data || []);
-
-            // Mark unread messages as read (messages not from me)
-            const unreadIds = (data || [])
-                .filter((msg: any) => msg.sender_id !== user.id)
-                .map((msg: any) => msg.id);
-
-            if (unreadIds.length > 0) {
-                await supabase
-                    .from('messages')
-                    .update({ is_read: true })
-                    .in('id', unreadIds)
-                    .eq('is_read', false);
-            }
         };
 
         loadMessages();
 
-        // Subscribe to new messages
+        // Subscribe to new messages and updates
         const channel = supabase
             .channel(`messages:${conversationId}`)
             .on(
@@ -202,11 +189,48 @@ export function ChatDrawer({
                     }
                 }
             )
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'messages',
+                    filter: `conversation_id=eq.${conversationId}`,
+                },
+                (payload) => {
+                    // Update message in state if is_read changed (for read receipts)
+                    setMessages((prev) =>
+                        prev.map((msg) =>
+                            msg.id === payload.new.id ? { ...msg, ...payload.new } : msg
+                        )
+                    );
+                }
+            )
             .subscribe();
 
         return () => {
             supabase.removeChannel(channel);
         };
+    }, [conversationId, user]);
+
+    // Reliable Mark-as-read: Triggers when conversation opens or changes
+    useEffect(() => {
+        const markMessagesAsRead = async () => {
+            if (!conversationId || !user) return;
+
+            const { error } = await supabase
+                .from('messages')
+                .update({ is_read: true })
+                .eq('conversation_id', conversationId)
+                .neq('sender_id', user.id)
+                .eq('is_read', false);
+
+            if (error) {
+                console.error('Error marking messages as read:', error);
+            }
+        };
+
+        markMessagesAsRead();
     }, [conversationId, user]);
 
     // Focus input when drawer opens

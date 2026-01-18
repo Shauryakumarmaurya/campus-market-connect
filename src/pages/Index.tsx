@@ -177,13 +177,13 @@ export default function Index() {
                 <h3 className="font-semibold text-slate-900 dark:text-white mb-1">Verified Students</h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400">Login with IITD Webmail</p>
               </div>
-              <div className="bg-white dark:bg-[#161B22] rounded-xl p-5 border border-gray-200 dark:border-gray-800 text-center">
+              <Link to="/messages" className="bg-white dark:bg-[#161B22] rounded-xl p-5 border border-gray-200 dark:border-gray-800 text-center cursor-pointer hover:shadow-md hover:scale-105 transition-all duration-200">
                 <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-3">
                   <MessageSquare className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <h3 className="font-semibold text-slate-900 dark:text-white mb-1">Secure Chat</h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400">No phone numbers shared</p>
-              </div>
+              </Link>
               <div className="bg-white dark:bg-[#161B22] rounded-xl p-5 border border-gray-200 dark:border-gray-800 text-center">
                 <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mx-auto mb-3">
                   <MapPin className="h-6 w-6 text-orange-600 dark:text-orange-400" />
@@ -206,8 +206,8 @@ export default function Index() {
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
                   className={`flex flex-col items-center justify-center p-4 rounded-xl border border-gray-200 dark:border-gray-800 transition-all hover:shadow-md hover:-translate-y-0.5 ${selectedCategory === cat.id
-                      ? 'ring-2 ring-emerald-500 border-emerald-500'
-                      : 'bg-white dark:bg-[#161B22]'
+                    ? 'ring-2 ring-emerald-500 border-emerald-500'
+                    : 'bg-white dark:bg-[#161B22]'
                     }`}
                 >
                   <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-2 ${cat.color}`}>

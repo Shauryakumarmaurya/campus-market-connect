@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -20,6 +21,7 @@ export function Navbar() {
   const { cartCount } = useCart();
   const [sellModalOpen, setSellModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -40,6 +42,34 @@ export function Navbar() {
   };
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
+
+  useEffect(() => {
+    const fetchUnread = async () => {
+      if (!user) return;
+
+      const { count } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_read', false)
+        .neq('sender_id', user.id);
+
+      setUnreadCount(count || 0);
+    };
+
+    fetchUnread();
+
+    const channel = supabase.channel('nav-badge')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'messages' },
+        fetchUnread
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   return (
     <>
@@ -74,6 +104,11 @@ export function Navbar() {
                   title="Messages"
                 >
                   <MessageSquare className="h-6 w-6" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] flex items-center justify-center border-2 border-white dark:border-[#0B0F1A]">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
                 </Link>
 
                 {/* Cart Icon with Badge */}
@@ -235,6 +270,11 @@ export function Navbar() {
                     >
                       <MessageSquare className="h-5 w-5 text-emerald-600" />
                       Messages
+                      {unreadCount > 0 && (
+                        <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                      )}
                     </Link>
                     <Link
                       to="/profile/cart"

@@ -61,31 +61,18 @@ export default function Messages() {
         try {
             const { data: convs, error } = await supabase
                 .from('conversations')
-                .select('id, product_id, buyer_id, seller_id, created_at')
+                .select(`
+                    id, product_id, buyer_id, seller_id, created_at,
+                    product:products(id, title, price, image_url),
+                    buyer:profiles!buyer_id(full_name, hostel_name),
+                    seller:profiles!seller_id(full_name, hostel_name)
+                `)
                 .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`);
 
             if (error) throw error;
 
             const enrichedConvs = await Promise.all(
                 (convs || []).map(async (conv) => {
-                    const { data: product } = await supabase
-                        .from('products')
-                        .select('id, title, price, image_url')
-                        .eq('id', conv.product_id)
-                        .single();
-
-                    const { data: buyer } = await supabase
-                        .from('profiles')
-                        .select('full_name, hostel_name')
-                        .eq('id', conv.buyer_id)
-                        .single();
-
-                    const { data: seller } = await supabase
-                        .from('profiles')
-                        .select('full_name, hostel_name')
-                        .eq('id', conv.seller_id)
-                        .single();
-
                     const { data: messages } = await supabase
                         .from('messages')
                         .select('content, created_at, sender_id')
@@ -100,11 +87,16 @@ export default function Messages() {
                         .neq('sender_id', user.id)
                         .eq('is_read', false);
 
+                    // These are already fetched by the main query, but we ensure the types match what we expect
+                    // conv.product, conv.buyer, conv.seller are now populated
+
                     return {
                         ...conv,
-                        product: product || undefined,
-                        buyer: buyer || undefined,
-                        seller: seller || undefined,
+                        // If the join returned an array (one-to-many), take the first. relationships usually return single object for belongs_to
+                        // but Supabase types might imply array if not careful. Assuming single here based on standard relational setup.
+                        // Actually, using !buyer_id implies a specific FK which usually resolves to one.
+                        // We'll cast/check just in case, but usually it returns an object.
+
                         last_message: messages?.[0] || undefined,
                         unread_count: unreadCount || 0,
                     };
@@ -186,6 +178,17 @@ export default function Messages() {
         return true;
     });
 
+    // Helper to safely extract name from profile data (handles array or object)
+    const getSafeName = (profile: any) => {
+        if (!profile) return 'Unknown User';
+        // Handle Array (Supabase one-to-many response)
+        if (Array.isArray(profile)) {
+            return profile[0]?.full_name || 'Unknown User';
+        }
+        // Handle Object (Supabase single response)
+        return profile.full_name || 'Unknown User';
+    };
+
     const getOtherPartyName = (conv: Conversation) => {
         if (user?.id === conv.seller_id) {
             return conv.buyer?.full_name || 'Buyer';
@@ -193,11 +196,23 @@ export default function Messages() {
         return conv.seller?.full_name || 'Seller';
     };
 
-    const handleConversationClick = (conv: Conversation) => {
+    const handleConversationClick = async (conv: Conversation) => {
+        // 1. Optimistic UI Update (Instant clear)
         setConversations((prev) =>
             prev.map((c) => (c.id === conv.id ? { ...c, unread_count: 0 } : c))
         );
         setSelectedConversation(conv);
+        // 2. Database Sync (Permanent Fix)
+        if (user) {
+            const { error } = await supabase
+                .from('messages')
+                .update({ is_read: true })
+                .eq('conversation_id', conv.id)
+                .neq('sender_id', user.id) // Only mark incoming messages
+                .eq('is_read', false);     // Only update if currently unread
+
+            if (error) console.error('Error marking messages as read:', error);
+        }
     };
 
     // Counts for tabs
@@ -313,7 +328,18 @@ export default function Messages() {
                 ) : (
                     <div className="space-y-3">
                         {filteredConversations.map((conv) => {
-                            const isSeller = user?.id === conv.seller_id;
+                            const isMeBuyer = conv.buyer_id === user?.id;
+                            const isSeller = !isMeBuyer;
+
+                            // 1. Determine the "Other Party" object
+                            const otherPartyProfile = isMeBuyer ? conv.seller : conv.buyer;
+                            // 2. Extract the name safely
+                            const displayName = getSafeName(otherPartyProfile);
+                            // 3. Debugging (Optional: Remove later)
+                            if (displayName === 'Unknown User') {
+                                console.log('Name extraction failed for:', isMeBuyer ? 'Seller' : 'Buyer', otherPartyProfile);
+                            }
+
                             const isLastMessageFromOther = conv.last_message?.sender_id !== user?.id;
                             const hasUnread = conv.unread_count > 0;
 
@@ -345,13 +371,13 @@ export default function Messages() {
 
                                         {/* Content */}
                                         <div className="flex-1 min-w-0">
-                                            {/* Product Name - Bold Headline */}
+                                            {/* Headline - Conditional based on Selling/Buying */}
                                             <div className="flex items-start justify-between gap-2 mb-1">
                                                 <h3 className={cn(
                                                     'text-base text-slate-900 dark:text-white truncate',
                                                     hasUnread ? 'font-bold' : 'font-semibold'
                                                 )}>
-                                                    {conv.product?.title || 'Unknown Product'}
+                                                    {displayName}
                                                 </h3>
                                                 {/* Status Badge */}
                                                 <span className={cn(
@@ -364,9 +390,12 @@ export default function Messages() {
                                                 </span>
                                             </div>
 
-                                            {/* Chat with [Name] */}
+                                            {/* Subtext - Conditional based on Selling/Buying */}
                                             <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">
-                                                Chat with <span className="font-medium text-slate-700 dark:text-slate-300">{getOtherPartyName(conv)}</span>
+                                                {isSeller
+                                                    ? <>Regarding your listing: <span className="font-medium text-slate-700 dark:text-slate-300">{conv.product?.title || 'Unknown Product'}</span></>
+                                                    : <>Interested in: <span className="font-medium text-slate-700 dark:text-slate-300">{conv.product?.title || 'Unknown Product'}</span></>
+                                                }
                                             </p>
 
                                             {/* Last Message */}
@@ -421,9 +450,9 @@ export default function Messages() {
                     productTitle={selectedConversation.product?.title || 'Product'}
                     productPrice={selectedConversation.product?.price}
                     sellerId={selectedConversation.seller_id}
-                    sellerName={selectedConversation.seller?.full_name || 'Seller'}
+                    sellerName={getSafeName(selectedConversation.seller)}
                     buyerId={selectedConversation.buyer_id}
-                    buyerName={selectedConversation.buyer?.full_name}
+                    buyerName={getSafeName(selectedConversation.buyer)}
                 />
             )}
         </div>

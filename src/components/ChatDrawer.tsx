@@ -23,6 +23,8 @@ interface ChatDrawerProps {
     productPrice?: number;
     sellerId: string;
     sellerName: string;
+    buyerId?: string;
+    buyerName?: string;
 }
 
 export function ChatDrawer({
@@ -33,6 +35,8 @@ export function ChatDrawer({
     productPrice,
     sellerId,
     sellerName,
+    buyerId,
+    buyerName,
 }: ChatDrawerProps) {
     const { user } = useAuth();
     const [messages, setMessages] = useState<Message[]>([]);
@@ -67,12 +71,19 @@ export function ChatDrawer({
                 let existingConv = null;
 
                 if (isSeller) {
-                    // Seller: find any conversation for this product where they are seller
+                    // Seller: must have buyerId to find specific conversation
+                    if (!buyerId) {
+                        toast.info('No specific buyer selected');
+                        setIsLoading(false);
+                        return;
+                    }
+                    // Seller: find the specific conversation with this buyer
                     const { data, error } = await supabase
                         .from('conversations')
                         .select('id')
                         .eq('product_id', productId)
                         .eq('seller_id', user.id)
+                        .eq('buyer_id', buyerId)
                         .limit(1)
                         .maybeSingle();
 
@@ -230,7 +241,7 @@ export function ChatDrawer({
 
     const getOtherPartyName = () => {
         if (user?.id === sellerId) {
-            return 'Buyer';
+            return buyerName || 'Buyer';
         }
         return sellerName;
     };

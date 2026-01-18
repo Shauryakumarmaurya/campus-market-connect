@@ -422,6 +422,8 @@ export default function Messages() {
                     productPrice={selectedConversation.product?.price}
                     sellerId={selectedConversation.seller_id}
                     sellerName={selectedConversation.seller?.full_name || 'Seller'}
+                    buyerId={selectedConversation.buyer_id}
+                    buyerName={selectedConversation.buyer?.full_name}
                 />
             )}
         </div>

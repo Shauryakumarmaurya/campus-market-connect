@@ -147,7 +147,7 @@ export default function Auth() {
               className="w-full h-full object-cover opacity-100 mix-blend-overlay"
             />
             {/* Deep overlay ensures branding is readable in both light and dark modes */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F1A] via-[#0B0F1A]/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F1A] via-[rgba(11,15,26,0.4)] to-transparent" />
           </div>
 
           {/* Branding Content: 'max-w-md' is the key constraint to prevent text bleed */}
@@ -156,7 +156,7 @@ export default function Auth() {
               <Store className="h-10 w-10 text-white" />
             </div>
             <h1 className="text-6xl font-bold tracking-tight mb-6 leading-[1.1]">
-              Pass it to the <span className="text-[#10B981]">NextBatch.</span>
+              Pass it to the <span className="text-[#10B981]">IITD.Store.</span>
             </h1>
             <p className="text-xl text-slate-300 font-medium leading-relaxed max-w-sm">
               The trusted marketplace for IIT Delhi students. Buy, sell, and connect safely on campus.
@@ -179,7 +179,7 @@ export default function Auth() {
             {/* Mobile Branding (Only visible when Left Half is hidden) */}
             <div className="text-center mb-10 lg:hidden">
               <Store className="h-12 w-12 text-[#10B981] mx-auto mb-4" />
-              <h1 className="text-3xl font-bold dark:text-white">NextBatch</h1>
+              <h1 className="text-3xl font-bold dark:text-white">IITD.Store</h1>
             </div>
 
             {/* Back button for forgot password */}

@@ -120,7 +120,7 @@ export default function ResetPassword() {
                             alt="IIT Delhi Campus"
                             className="w-full h-full object-cover opacity-100 mix-blend-overlay"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F1A] via-[#0B0F1A]/40 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F1A] via-[rgba(11,15,26,0.4)] to-transparent" />
                     </div>
 
                     <div className="relative z-10 text-white w-full max-w-md">
@@ -128,7 +128,7 @@ export default function ResetPassword() {
                             <Store className="h-10 w-10 text-white" />
                         </div>
                         <h1 className="text-6xl font-bold tracking-tight mb-6 leading-[1.1]">
-                            Pass it to the <span className="text-[#10B981]">NextBatch.</span>
+                            Pass it to the <span className="text-[#10B981]">IITD.Store.</span>
                         </h1>
                         <p className="text-xl text-slate-300 font-medium leading-relaxed max-w-sm">
                             The trusted marketplace for IIT Delhi students. Buy, sell, and connect safely on campus.
@@ -141,7 +141,7 @@ export default function ResetPassword() {
                     <div className="w-full max-w-md text-center">
                         <div className="text-center mb-10 lg:hidden">
                             <Store className="h-12 w-12 text-[#10B981] mx-auto mb-4" />
-                            <h1 className="text-3xl font-bold dark:text-white">NextBatch</h1>
+                            <h1 className="text-3xl font-bold dark:text-white">IITD.Store</h1>
                         </div>
 
                         <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
@@ -173,7 +173,7 @@ export default function ResetPassword() {
                         alt="IIT Delhi Campus"
                         className="w-full h-full object-cover opacity-100 mix-blend-overlay"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F1A] via-[#0B0F1A]/40 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F1A] via-[rgba(11,15,26,0.4)] to-transparent" />
                 </div>
 
                 <div className="relative z-10 text-white w-full max-w-md">
@@ -181,7 +181,7 @@ export default function ResetPassword() {
                         <Store className="h-10 w-10 text-white" />
                     </div>
                     <h1 className="text-6xl font-bold tracking-tight mb-6 leading-[1.1]">
-                        Pass it to the <span className="text-[#10B981]">NextBatch.</span>
+                        Pass it to the <span className="text-[#10B981]">IITD.Store.</span>
                     </h1>
                     <p className="text-xl text-slate-300 font-medium leading-relaxed max-w-sm">
                         The trusted marketplace for IIT Delhi students. Buy, sell, and connect safely on campus.
@@ -204,7 +204,7 @@ export default function ResetPassword() {
                     {/* Mobile Branding */}
                     <div className="text-center mb-10 lg:hidden">
                         <Store className="h-12 w-12 text-[#10B981] mx-auto mb-4" />
-                        <h1 className="text-3xl font-bold dark:text-white">NextBatch</h1>
+                        <h1 className="text-3xl font-bold dark:text-white">IITD.Store</h1>
                     </div>
 
                     <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 lg:mx-0">

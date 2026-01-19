@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Send, Loader2, MessageCircle, ShieldCheck } from 'lucide-react';
+import { X, Send, Loader2, MessageCircle, ShieldCheck, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
@@ -45,6 +45,9 @@ export function ChatDrawer({
     const [isSending, setIsSending] = useState(false);
     const [conversationId, setConversationId] = useState<number | null>(null);
     const [showSafetyTip, setShowSafetyTip] = useState(true);
+    const [otherPartyPhone, setOtherPartyPhone] = useState<string | null>(null);
+
+    // ... existing refs ...
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -55,6 +58,32 @@ export function ChatDrawer({
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
+
+    // Fetch other party's phone number
+    useEffect(() => {
+        if (!user || !open) return;
+
+        const isSeller = user.id === sellerId;
+        const otherId = isSeller ? buyerId : sellerId;
+
+        if (!otherId) return;
+
+        const fetchPhone = async () => {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('phone_number')
+                .eq('id', otherId)
+                .single();
+
+            if (data && !error) {
+                setOtherPartyPhone(data.phone_number);
+            }
+        };
+
+        fetchPhone();
+    }, [user, open, sellerId, buyerId]);
+
+    // ... existing findOrCreateConversation useEffect ...
 
     // Find or create conversation when drawer opens
     useEffect(() => {
@@ -132,7 +161,7 @@ export function ChatDrawer({
                     }
                 } else {
                     // Seller opened chat but no conversations exist yet
-                    toast.info('No conversations yet for this product');
+                    // toast.info('No conversations yet for this product');
                 }
             } catch (error: any) {
                 console.error('Error finding/creating conversation:', error);
@@ -143,7 +172,9 @@ export function ChatDrawer({
         };
 
         findOrCreateConversation();
-    }, [open, user, productId, sellerId]);
+    }, [open, user, productId, sellerId, buyerId]);
+
+    // ... existing message loading and sub ...
 
     // Load messages and subscribe to realtime updates
     useEffect(() => {
@@ -233,6 +264,7 @@ export function ChatDrawer({
         markMessagesAsRead();
     }, [conversationId, user]);
 
+
     // Focus input when drawer opens
     useEffect(() => {
         if (open && !isLoading) {
@@ -240,16 +272,19 @@ export function ChatDrawer({
         }
     }, [open, isLoading]);
 
-    const handleSendMessage = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!newMessage.trim() || !conversationId || !user) return;
+    const handleSendMessage = async (e?: React.FormEvent, content?: string) => {
+        if (e) e.preventDefault();
+
+        const msgContent = content || newMessage;
+
+        if (!msgContent.trim() || !conversationId || !user) return;
 
         setIsSending(true);
         try {
             const { error } = await supabase.from('messages').insert({
                 conversation_id: conversationId,
                 sender_id: user.id,
-                content: newMessage.trim(),
+                content: msgContent.trim(),
                 is_read: false,
             });
 
@@ -263,6 +298,28 @@ export function ChatDrawer({
         }
     };
 
+    const handleAcceptWhatsApp = () => {
+        if (!otherPartyPhone) {
+            toast.error("Buyer's phone number not found.");
+            return;
+        }
+
+        const text = `Hi! I am interested in selling ${productTitle} for ₹${productPrice?.toLocaleString()}. Link: https://iitd.store/products/${productId}`;
+        const url = `https://wa.me/${otherPartyPhone}?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
+    };
+
+    const handleBuyerAcceptWhatsApp = () => {
+        if (!otherPartyPhone) {
+            toast.error("Seller's phone number not found.");
+            return;
+        }
+
+        const text = `Hi! I am the one chatting with you on iitd.store for the ${productTitle}. I'd like to finalise the deal for ₹${productPrice?.toLocaleString()}. Link: https://iitd.store/products/${productId}`;
+        const url = `https://wa.me/${otherPartyPhone}?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
+    };
+
     const getOtherPartyName = () => {
         if (user?.id === sellerId) {
             return buyerName || 'Buyer';
@@ -271,6 +328,8 @@ export function ChatDrawer({
     };
 
     if (!open) return null;
+
+    const isSeller = user?.id === sellerId;
 
     return (
         <>
@@ -347,6 +406,87 @@ export function ChatDrawer({
                     ) : (
                         messages.map((message) => {
                             const isOwnMessage = message.sender_id === user?.id;
+                            const isWhatsAppRequest = message.content === 'ACTION_REQUEST_WHATSAPP';
+                            const isSellerOffer = message.content === 'ACTION_SELLER_OFFER_WHATSAPP';
+
+                            if (isWhatsAppRequest) {
+                                return (
+                                    <div
+                                        key={message.id}
+                                        className={cn(
+                                            'flex',
+                                            isOwnMessage ? 'justify-end' : 'justify-start'
+                                        )}
+                                    >
+                                        <div className="max-w-[85%] rounded-2xl shadow-md border border-[#25D366] bg-[#F0FDF4] dark:bg-[rgba(18,140,126,0.2)] overflow-hidden">
+                                            <div className="p-4">
+                                                <div className="flex items-center gap-2 mb-3 text-[#128C7E] dark:text-[#25D366] font-bold text-sm">
+                                                    <div className="p-1.5 bg-[rgba(37,211,102,0.1)] rounded-full">
+                                                        <Phone className="h-4 w-4" />
+                                                    </div>
+                                                    {isOwnMessage ? 'You requested WhatsApp' : 'Buyer requested WhatsApp Connect'}
+                                                </div>
+
+                                                {!isOwnMessage && isSeller && (
+                                                    <Button
+                                                        onClick={handleAcceptWhatsApp}
+                                                        size="sm"
+                                                        className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white font-bold shadow-sm"
+                                                    >
+                                                        Accept & Chat on WhatsApp
+                                                    </Button>
+                                                )}
+
+                                                {isOwnMessage && (
+                                                    <p className="text-xs text-[rgba(18,140,126,0.8)] dark:text-[rgba(37,211,102,0.8)] bg-[rgba(37,211,102,0.1)] px-2 py-1 rounded-md inline-block">
+                                                        Waiting for seller to accept...
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            }
+
+                            if (isSellerOffer) {
+                                return (
+                                    <div
+                                        key={message.id}
+                                        className={cn(
+                                            'flex',
+                                            isOwnMessage ? 'justify-end' : 'justify-start'
+                                        )}
+                                    >
+                                        <div className="max-w-[85%] rounded-2xl shadow-md border border-[#25D366] bg-[#F0FDF4] dark:bg-[rgba(18,140,126,0.2)] overflow-hidden">
+                                            <div className="p-4">
+                                                <div className="flex items-center gap-2 mb-3 text-[#128C7E] dark:text-[#25D366] font-bold text-sm">
+                                                    <div className="p-1.5 bg-[rgba(37,211,102,0.1)] rounded-full">
+                                                        <Phone className="h-4 w-4" />
+                                                    </div>
+                                                    {isOwnMessage ? 'You invited Buyer to WhatsApp' : 'Seller invited you to WhatsApp'}
+                                                </div>
+
+                                                {!isOwnMessage && !isSeller && (
+                                                    <Button
+                                                        onClick={handleBuyerAcceptWhatsApp}
+                                                        size="sm"
+                                                        className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white font-bold shadow-sm"
+                                                    >
+                                                        Chat with Seller on WhatsApp
+                                                    </Button>
+                                                )}
+
+                                                {isOwnMessage && (
+                                                    <p className="text-xs text-[rgba(18,140,126,0.8)] dark:text-[rgba(37,211,102,0.8)] bg-[rgba(37,211,102,0.1)] px-2 py-1 rounded-md inline-block">
+                                                        Sent invite to buyer
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            }
+
                             return (
                                 <div
                                     key={message.id}
@@ -357,25 +497,55 @@ export function ChatDrawer({
                                 >
                                     <div
                                         className={cn(
-                                            'max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm',
-                                            isOwnMessage
-                                                ? 'bg-emerald-600 text-white rounded-br-md'
-                                                : 'bg-slate-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-md border border-slate-100 dark:border-gray-700'
+                                            'max-w-[85%] rounded-2xl shadow-sm overflow-hidden',
+                                            isWhatsAppRequest
+                                                ? 'border-2 border-emerald-500/50 bg-emerald-50 dark:bg-emerald-900/20'
+                                                : isOwnMessage
+                                                    ? 'bg-emerald-600 text-white rounded-br-md px-4 py-2.5'
+                                                    : 'bg-slate-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-md border border-slate-100 dark:border-gray-700 px-4 py-2.5'
                                         )}
                                     >
-                                        <p className="text-sm leading-relaxed break-words">
-                                            {message.content}
-                                        </p>
-                                        <p
-                                            className={cn(
-                                                'text-[10px] mt-1',
-                                                isOwnMessage ? 'text-emerald-200' : 'text-gray-400 dark:text-gray-500'
-                                            )}
-                                        >
-                                            {formatDistanceToNow(new Date(message.created_at), {
-                                                addSuffix: true,
-                                            })}
-                                        </p>
+                                        {isWhatsAppRequest ? (
+                                            <div className="p-3">
+                                                <div className="flex items-center gap-2 mb-2 text-emerald-700 dark:text-emerald-400 font-semibold text-sm">
+                                                    <Phone className="h-4 w-4" />
+                                                    {isOwnMessage ? 'You requested WhatsApp' : 'Buyer requested WhatsApp Connect'}
+                                                </div>
+
+                                                {!isOwnMessage && isSeller && (
+                                                    <Button
+                                                        onClick={handleAcceptWhatsApp}
+                                                        size="sm"
+                                                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+                                                    >
+                                                        Accept & Chat on WhatsApp
+                                                    </Button>
+                                                )}
+
+                                                {isOwnMessage && (
+                                                    <p className="text-xs text-emerald-600/80 dark:text-emerald-400/70">
+                                                        Waiting for seller to accept...
+                                                    </p>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm leading-relaxed break-words">
+                                                {message.content}
+                                            </p>
+                                        )}
+
+                                        {!isWhatsAppRequest && (
+                                            <p
+                                                className={cn(
+                                                    'text-[10px] mt-1',
+                                                    isOwnMessage ? 'text-emerald-200' : 'text-gray-400 dark:text-gray-500'
+                                                )}
+                                            >
+                                                {formatDistanceToNow(new Date(message.created_at), {
+                                                    addSuffix: true,
+                                                })}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             );
@@ -386,10 +556,23 @@ export function ChatDrawer({
 
                 {/* Message Input */}
                 <form
-                    onSubmit={handleSendMessage}
+                    onSubmit={(e) => handleSendMessage(e)}
                     className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0B0F1A]"
                 >
                     <div className="flex items-center gap-2">
+                        {/* WhatsApp Trigger Button (Both Parties) */}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleSendMessage(undefined, isSeller ? 'ACTION_SELLER_OFFER_WHATSAPP' : 'ACTION_REQUEST_WHATSAPP')}
+                            disabled={isSending || isLoading || !conversationId}
+                            className="shrink-0 text-emerald-600 border-emerald-200 hover:bg-emerald-50 dark:border-emerald-800 dark:hover:bg-emerald-900/30"
+                            title={isSeller ? "Invite to WhatsApp" : "Request WhatsApp Chat"}
+                        >
+                            <Phone className="h-4 w-4" />
+                        </Button>
+
                         <Input
                             ref={inputRef}
                             type="text"

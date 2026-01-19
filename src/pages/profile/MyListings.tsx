@@ -256,7 +256,7 @@ export default function MyListings() {
                                     {soldListings.map((product) => (
                                         <div
                                             key={product.id}
-                                            className="flex items-center gap-4 p-4 bg-slate-50/50 dark:bg-[#161B22]/50 rounded-xl border border-gray-200 dark:border-gray-800 opacity-75 grayscale-[0.5] hover:opacity-100 hover:grayscale-0 transition-all"
+                                            className="flex items-center gap-4 p-4 bg-slate-50/50 dark:bg-[rgba(22,27,34,0.5)] rounded-xl border border-gray-200 dark:border-gray-800 opacity-75 grayscale-[0.5] hover:opacity-100 hover:grayscale-0 transition-all"
                                         >
                                             {product.image_url ? (
                                                 <img

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -53,10 +53,38 @@ const categoryConfig: Record<string, { label: string; icon: any; color: string; 
 export default function Index() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get('search') || '';
+
+  const [heroInput, setHeroInput] = useState(searchQuery);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+
+  useEffect(() => {
+    setHeroInput(searchQuery);
+  }, [searchQuery]);
+
+  const handleSearch = () => {
+    if (heroInput.trim()) {
+      setSearchParams({ search: heroInput.trim() });
+      setSelectedCategory('all');
+      const element = document.getElementById('marketplace');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // Optional: clear search if input is empty
+      searchParams.delete('search');
+      setSearchParams(searchParams);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
   // Fetch user's own listings
   const { data: myListings, isLoading: myListingsLoading } = useQuery({
@@ -123,13 +151,13 @@ export default function Index() {
     <div className="min-h-screen bg-slate-50 dark:bg-background">
       <Navbar />
 
-      <main className="space-y-8">
+      <main className="space-y-6">
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-white to-slate-50 dark:from-[#0B0F1A] dark:to-background border-b border-gray-100 dark:border-gray-800">
-          <div className="container mx-auto px-4 py-12 md:py-16">
+          <div className="container mx-auto px-4 py-8 pb-4">
             {/* Headline */}
-            <div className="text-center mb-8">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-3">
+            <div className="text-center mb-5">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-2">
                 The Marketplace for{' '}
                 <span className="text-emerald-600">IIT Delhi</span>
               </h1>
@@ -139,21 +167,27 @@ export default function Index() {
             </div>
 
             {/* Large Search Bar */}
-            <div className="max-w-2xl mx-auto mb-8">
+            <div className="max-w-2xl mx-auto mb-5">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                 <input
                   type="text"
                   placeholder="Search for books, cycles, electronics..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 shadow-lg shadow-gray-200/50 dark:shadow-none transition-all"
+                  value={heroInput}
+                  onChange={(e) => setHeroInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="w-full pl-6 pr-14 py-3 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 shadow-lg shadow-gray-200/50 dark:shadow-none transition-all"
                 />
+                <button
+                  onClick={handleSearch}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-emerald-100 hover:bg-emerald-600 text-emerald-600 hover:text-white rounded-lg transition-colors duration-200"
+                >
+                  <Search className="h-6 w-6" />
+                </button>
               </div>
             </div>
 
             {/* Dual CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
               {myListings && myListings.length > 0 ? (
                 <Button
                   onClick={() => navigate('/profile/listings')}
@@ -176,7 +210,8 @@ export default function Index() {
               <Button
                 onClick={() => {
                   setSelectedCategory('all');
-                  setSearchQuery('');
+                  setHeroInput('');
+                  setSearchParams({});
                   document.getElementById('marketplace')?.scrollIntoView({ behavior: 'smooth' });
                 }}
                 variant="outline"
@@ -190,26 +225,26 @@ export default function Index() {
 
             {/* How it Works */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-              <div className="bg-white dark:bg-[#161B22] rounded-xl p-5 border border-gray-200 dark:border-gray-800 text-center">
-                <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-3">
-                  <ShieldCheck className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+              <div className="bg-white dark:bg-[#161B22] rounded-xl p-3 border border-gray-200 dark:border-gray-800 text-center flex flex-col items-center">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-2">
+                  <ShieldCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
-                <h3 className="font-semibold text-slate-900 dark:text-white mb-1">Verified Students</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Login with IITD Webmail</p>
+                <h3 className="font-semibold text-sm text-slate-900 dark:text-white">Verified Students</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Login with IITD Webmail</p>
               </div>
-              <Link to="/messages" className="bg-white dark:bg-[#161B22] rounded-xl p-5 border border-gray-200 dark:border-gray-800 text-center cursor-pointer hover:shadow-md hover:scale-105 transition-all duration-200">
-                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-3">
-                  <MessageSquare className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <Link to="/messages" className="bg-white dark:bg-[#161B22] rounded-xl p-3 border border-gray-200 dark:border-gray-800 text-center cursor-pointer hover:shadow-md hover:scale-105 transition-all duration-200 flex flex-col items-center">
+                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-2">
+                  <MessageSquare className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="font-semibold text-slate-900 dark:text-white mb-1">Secure Chat</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400">No phone numbers shared</p>
+                <h3 className="font-semibold text-sm text-slate-900 dark:text-white">Secure Chat</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">No phone numbers shared</p>
               </Link>
-              <div className="bg-white dark:bg-[#161B22] rounded-xl p-5 border border-gray-200 dark:border-gray-800 text-center">
-                <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mx-auto mb-3">
-                  <MapPin className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+              <div className="bg-white dark:bg-[#161B22] rounded-xl p-3 border border-gray-200 dark:border-gray-800 text-center flex flex-col items-center">
+                <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mb-2">
+                  <MapPin className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                 </div>
-                <h3 className="font-semibold text-slate-900 dark:text-white mb-1">Campus Meetup</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Exchange in your hostel</p>
+                <h3 className="font-semibold text-sm text-slate-900 dark:text-white">Campus Meetup</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Exchange in your hostel</p>
               </div>
             </div>
           </div>
@@ -224,7 +259,12 @@ export default function Index() {
               return (
                 <button
                   key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
+                  onClick={() => {
+                    setSelectedCategory(cat.id);
+                    setHeroInput('');
+                    setSearchParams({});
+                    // Optional: scroll to marketplace if needed
+                  }}
                   className={`flex flex-col items-center justify-center p-4 rounded-xl border border-gray-200 dark:border-gray-800 transition-all hover:shadow-md hover:-translate-y-0.5 ${selectedCategory === cat.id
                     ? 'ring-2 ring-emerald-500 border-emerald-500'
                     : 'bg-white dark:bg-[#161B22]'
@@ -266,7 +306,11 @@ export default function Index() {
                 icon={BookOpen}
                 iconClassName="bg-blue-100 dark:bg-blue-900/30"
                 iconColorClass="text-blue-600 dark:text-blue-400"
-                onViewAll={() => setSelectedCategory('Books')}
+                onViewAll={() => {
+                  setSelectedCategory('Books');
+                  setHeroInput('');
+                  setSearchParams({});
+                }}
                 onProductClick={handleProductClick}
                 limit={20}
               />
@@ -276,7 +320,11 @@ export default function Index() {
                 icon={Smartphone}
                 iconClassName="bg-purple-100 dark:bg-purple-900/30"
                 iconColorClass="text-purple-600 dark:text-purple-400"
-                onViewAll={() => setSelectedCategory('Electronics')}
+                onViewAll={() => {
+                  setSelectedCategory('Electronics');
+                  setHeroInput('');
+                  setSearchParams({});
+                }}
                 onProductClick={handleProductClick}
                 limit={20}
               />
@@ -286,7 +334,11 @@ export default function Index() {
                 icon={FlaskConical}
                 iconClassName="bg-orange-100 dark:bg-orange-900/30"
                 iconColorClass="text-orange-600 dark:text-orange-400"
-                onViewAll={() => setSelectedCategory('Lab Coat')}
+                onViewAll={() => {
+                  setSelectedCategory('Lab Coat');
+                  setHeroInput('');
+                  setSearchParams({});
+                }}
                 onProductClick={handleProductClick}
                 limit={20}
               />
@@ -296,7 +348,11 @@ export default function Index() {
                 icon={Bike}
                 iconClassName="bg-emerald-100 dark:bg-emerald-900/30"
                 iconColorClass="text-emerald-600 dark:text-emerald-400"
-                onViewAll={() => setSelectedCategory('Cycle')}
+                onViewAll={() => {
+                  setSelectedCategory('Cycle');
+                  setHeroInput('');
+                  setSearchParams({});
+                }}
                 onProductClick={handleProductClick}
                 limit={20}
               />
@@ -306,7 +362,11 @@ export default function Index() {
                 icon={Package}
                 iconClassName="bg-slate-100 dark:bg-slate-800"
                 iconColorClass="text-slate-600 dark:text-slate-400"
-                onViewAll={() => setSelectedCategory('Other')}
+                onViewAll={() => {
+                  setSelectedCategory('Other');
+                  setHeroInput('');
+                  setSearchParams({});
+                }}
                 onProductClick={handleProductClick}
                 limit={20}
               />
@@ -353,7 +413,8 @@ export default function Index() {
               ) : (
                 <EmptyState
                   onClearFilters={() => {
-                    setSearchQuery('');
+                    setHeroInput('');
+                    setSearchParams({});
                     setSelectedCategory('all');
                   }}
                 />

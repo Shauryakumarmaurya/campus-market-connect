@@ -74,7 +74,7 @@ export function Navbar() {
   return (
     <>
       {/* Glassmorphism Navbar */}
-      <nav className="sticky top-0 z-50 w-full bg-white/70 dark:bg-[#0B0F1A]/80 backdrop-blur-xl border-b border-emerald-100/50 dark:border-emerald-900/30 transition-all duration-300">
+      <nav className="sticky top-0 z-50 w-full bg-white/70 dark:bg-[rgba(11,15,26,0.8)] backdrop-blur-xl border-b border-emerald-100/50 dark:border-emerald-900/30 transition-all duration-300">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             {/* Logo */}
@@ -82,7 +82,7 @@ export function Navbar() {
               <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
                 <Store className="h-5 w-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-slate-900 dark:text-white">NextBatch</span>
+              <span className="text-xl font-bold text-slate-900 dark:text-white">IITD.Store</span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -263,7 +263,7 @@ export function Navbar() {
 
         {/* Mobile Menu Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-emerald-100/50 dark:border-emerald-900/30 bg-white/95 dark:bg-[#0B0F1A]/95 backdrop-blur-xl">
+          <div className="md:hidden border-t border-emerald-100/50 dark:border-emerald-900/30 bg-white/95 dark:bg-[rgba(11,15,26,0.95)] backdrop-blur-xl">
             <div className="container mx-auto px-4 py-4 space-y-3">
               {user ? (
                 <>

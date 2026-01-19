@@ -331,11 +331,11 @@ export default function Auth() {
           </DialogHeader>
           <div className="mt-6">
             <Button
-              onClick={handleSuccessDialogClose}
+              onClick={() => window.open('https://webmail.iitd.ac.in/', '_blank')}
               className="w-full py-6 text-lg font-semibold bg-[#10B981] hover:bg-[#0D9668] text-white"
             >
               <CheckCircle2 className="h-5 w-5 mr-2" />
-              Got it, Go to Login
+              Got it, Go to Webmail
             </Button>
           </div>
         </DialogContent>
@@ -355,11 +355,11 @@ export default function Auth() {
           </DialogHeader>
           <div className="mt-6">
             <Button
-              onClick={handleResetEmailDialogClose}
+              onClick={() => window.open('https://webmail.iitd.ac.in/', '_blank')}
               className="w-full py-6 text-lg font-semibold bg-[#10B981] hover:bg-[#0D9668] text-white"
             >
               <CheckCircle2 className="h-5 w-5 mr-2" />
-              Got it, Go to Login
+              Got it, Go to Webmail
             </Button>
           </div>
         </DialogContent>

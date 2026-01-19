@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { ChevronRight, ChevronLeft, Package } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Package, LucideIcon } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { formatRupee } from '@/lib/formatRupee';
 
@@ -28,6 +28,9 @@ interface CategorySectionProps {
     onViewAll?: () => void;
     onProductClick: (product: Product) => void;
     limit?: number;
+    icon?: LucideIcon;
+    iconClassName?: string;
+    iconColorClass?: string;
 }
 
 export function CategorySection({
@@ -35,7 +38,10 @@ export function CategorySection({
     categoryFilter,
     onViewAll,
     onProductClick,
-    limit = 6
+    limit = 6,
+    icon: Icon,
+    iconClassName = "bg-emerald-100 dark:bg-emerald-900/30",
+    iconColorClass = "text-emerald-600 dark:text-emerald-400"
 }: CategorySectionProps) {
     const { user } = useAuth();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -55,6 +61,7 @@ export function CategorySection({
         `)
                 .eq('status', 'active')
                 .lt('report_count', 10)
+
                 .order('created_at', { ascending: false })
                 .limit(limit);
 
@@ -117,10 +124,17 @@ export function CategorySection({
     }
 
     return (
-        <section className="mb-8">
+        <section>
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-slate-900 dark:text-gray-100">{title}</h2>
+                <div className="flex items-center gap-2">
+                    {Icon && (
+                        <div className={`p-2 rounded-lg ${iconClassName}`}>
+                            <Icon className={`w-5 h-5 ${iconColorClass}`} />
+                        </div>
+                    )}
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-gray-100">{title}</h2>
+                </div>
                 {onViewAll && (
                     <button
                         onClick={onViewAll}

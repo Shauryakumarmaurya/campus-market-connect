@@ -5,14 +5,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navbar } from '@/components/Navbar';
 import { SearchBar } from '@/components/SearchBar';
-import { CategoryFilter } from '@/components/CategoryFilter';
+
 import { ProductCard } from '@/components/ProductCard';
 import { ProductCardSkeleton } from '@/components/ProductCardSkeleton';
 import { EmptyState } from '@/components/EmptyState';
 import { CategorySection } from '@/components/CategorySection';
 import { ProductDetailsModal } from '@/components/ProductDetailsModal';
 import { Button } from '@/components/ui/button';
-import { Plus, Search, ChevronRight, Package, ShieldCheck, MessageSquare, MapPin, Book, Laptop, Bike, FlaskConical, MoreHorizontal } from 'lucide-react';
+import { Plus, Search, ChevronRight, Package, ShieldCheck, MessageSquare, MapPin, Book, Laptop, Bike, FlaskConical, MoreHorizontal, Store, LayoutGrid, Sparkles, Smartphone, BookOpen } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import { formatRupee } from '@/lib/formatRupee';
 
@@ -34,12 +34,21 @@ interface Product {
 }
 
 const categoryCards = [
+  { id: 'all', label: 'View All', icon: LayoutGrid, color: 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' },
   { id: 'Books', label: 'Books & Notes', icon: Book, color: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' },
   { id: 'Electronics', label: 'Electronics', icon: Laptop, color: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400' },
   { id: 'Cycle', label: 'Cycles', icon: Bike, color: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' },
   { id: 'Lab Coat', label: 'Lab Essentials', icon: FlaskConical, color: 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400' },
   { id: 'Other', label: 'Other', icon: MoreHorizontal, color: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400' },
 ];
+
+const categoryConfig: Record<string, { label: string; icon: any; color: string; bg: string }> = {
+  Books: { label: 'Books & Notes', icon: BookOpen, color: 'text-blue-600', bg: 'bg-blue-100' },
+  Electronics: { label: 'Electronics & Gadgets', icon: Smartphone, color: 'text-purple-600', bg: 'bg-purple-100' },
+  Cycle: { label: 'Cycles', icon: Bike, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+  'Lab Coat': { label: 'Lab Essentials', icon: FlaskConical, color: 'text-orange-600', bg: 'bg-orange-100' },
+  Other: { label: 'Other Essentials', icon: Package, color: 'text-slate-600', bg: 'bg-slate-100' },
+};
 
 export default function Index() {
   const { user, loading: authLoading } = useAuth();
@@ -114,7 +123,7 @@ export default function Index() {
     <div className="min-h-screen bg-slate-50 dark:bg-background">
       <Navbar />
 
-      <main>
+      <main className="space-y-8">
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-white to-slate-50 dark:from-[#0B0F1A] dark:to-background border-b border-gray-100 dark:border-gray-800">
           <div className="container mx-auto px-4 py-12 md:py-16">
@@ -145,14 +154,25 @@ export default function Index() {
 
             {/* Dual CTA Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <Button
-                onClick={handleSellClick}
-                size="lg"
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8 py-6 text-base rounded-xl shadow-lg shadow-emerald-200 dark:shadow-none w-full sm:w-auto"
-              >
-                <Plus className="h-5 w-5 mr-2" />
-                Sell an Item
-              </Button>
+              {myListings && myListings.length > 0 ? (
+                <Button
+                  onClick={() => navigate('/profile/listings')}
+                  size="lg"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8 py-6 text-base rounded-xl shadow-lg shadow-emerald-200 dark:shadow-none w-full sm:w-auto"
+                >
+                  <Store className="h-5 w-5 mr-2" />
+                  Manage My Listings
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleSellClick}
+                  size="lg"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8 py-6 text-base rounded-xl shadow-lg shadow-emerald-200 dark:shadow-none w-full sm:w-auto"
+                >
+                  <Plus className="h-5 w-5 mr-2" />
+                  Sell an Item
+                </Button>
+              )}
               <Button
                 onClick={() => {
                   setSelectedCategory('all');
@@ -196,9 +216,9 @@ export default function Index() {
         </section>
 
         {/* Visual Category Cards */}
-        <section className="container mx-auto px-4 py-8">
+        <section className="container mx-auto px-4">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Shop by Category</h2>
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {categoryCards.map((cat) => {
               const Icon = cat.icon;
               return (
@@ -223,71 +243,90 @@ export default function Index() {
         </section>
 
         {/* My Listings Section */}
-        {user && !myListingsLoading && myListings && myListings.length > 0 && (
-          <section className="container mx-auto px-4 py-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                My Active Listings
-              </h2>
-              <Link
-                to="/profile/listings"
-                className="text-sm text-primary dark:text-emerald-400 hover:underline flex items-center gap-1 font-medium"
-              >
-                Manage All
-                <ChevronRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide -mx-4 px-4">
-              {myListings.map((product) => (
-                <div
-                  key={product.id}
-                  onClick={() => handleProductClick(product)}
-                  className="flex-shrink-0 flex items-center gap-3 p-3 bg-white dark:bg-[#161B22] border border-gray-200 dark:border-gray-800 rounded-xl hover:border-primary hover:shadow-md transition-all duration-200 cursor-pointer min-w-[200px]"
-                >
-                  <div className="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-800 flex-shrink-0 overflow-hidden">
-                    {product.image_url ? (
-                      <img src={product.image_url} alt={product.title} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Package className="h-5 w-5 text-gray-300" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm truncate">{product.title}</h3>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-primary font-bold text-sm">{formatRupee(product.price)}</span>
-                      <span className="text-xs px-1.5 py-0.5 rounded-full bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 font-medium">
-                        Active
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+
 
         {/* Marketplace Section */}
         <section id="marketplace" className="container mx-auto px-4 py-6">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Marketplace</h2>
 
-          {/* Sticky Category Filter Bar */}
-          <div className="sticky top-[60px] z-10 bg-white/95 dark:bg-[#0B0F1A]/95 backdrop-blur-sm py-4 -mx-4 px-4 border-b border-gray-100 dark:border-gray-800 mb-5">
-            <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
-          </div>
 
           {showCategorizedView ? (
-            <div className="space-y-2">
-              <CategorySection title="🆕 Fresh Arrivals" onViewAll={undefined} onProductClick={handleProductClick} limit={6} />
-              <CategorySection title="📚 Books & Notes" categoryFilter="Books" onViewAll={() => setSelectedCategory('Books')} onProductClick={handleProductClick} limit={20} />
-              <CategorySection title="📱 Electronics & Gadgets" categoryFilter="Electronics" onViewAll={() => setSelectedCategory('Electronics')} onProductClick={handleProductClick} limit={20} />
-              <CategorySection title="🥼 Hostel Essentials" categoryFilter="Lab Coat" onViewAll={() => setSelectedCategory('Lab Coat')} onProductClick={handleProductClick} limit={20} />
-              <CategorySection title="🚲 Cycles" categoryFilter="Cycle" onViewAll={() => setSelectedCategory('Cycle')} onProductClick={handleProductClick} limit={20} />
-              <CategorySection title="📦 Other Essentials" categoryFilter="Other" onViewAll={() => setSelectedCategory('Other')} onProductClick={handleProductClick} limit={20} />
+            <div className="space-y-8 md:space-y-12">
+              <CategorySection
+                title="Fresh Arrivals"
+                icon={Sparkles}
+                iconClassName="bg-emerald-100 dark:bg-emerald-900/30"
+                iconColorClass="text-emerald-600 dark:text-emerald-400"
+                onViewAll={undefined}
+                onProductClick={handleProductClick}
+                limit={6}
+              />
+              <CategorySection
+                title="Books & Notes"
+                categoryFilter="Books"
+                icon={BookOpen}
+                iconClassName="bg-blue-100 dark:bg-blue-900/30"
+                iconColorClass="text-blue-600 dark:text-blue-400"
+                onViewAll={() => setSelectedCategory('Books')}
+                onProductClick={handleProductClick}
+                limit={20}
+              />
+              <CategorySection
+                title="Electronics & Gadgets"
+                categoryFilter="Electronics"
+                icon={Smartphone}
+                iconClassName="bg-purple-100 dark:bg-purple-900/30"
+                iconColorClass="text-purple-600 dark:text-purple-400"
+                onViewAll={() => setSelectedCategory('Electronics')}
+                onProductClick={handleProductClick}
+                limit={20}
+              />
+              <CategorySection
+                title="Lab Essentials"
+                categoryFilter="Lab Coat"
+                icon={FlaskConical}
+                iconClassName="bg-orange-100 dark:bg-orange-900/30"
+                iconColorClass="text-orange-600 dark:text-orange-400"
+                onViewAll={() => setSelectedCategory('Lab Coat')}
+                onProductClick={handleProductClick}
+                limit={20}
+              />
+              <CategorySection
+                title="Cycles"
+                categoryFilter="Cycle"
+                icon={Bike}
+                iconClassName="bg-emerald-100 dark:bg-emerald-900/30"
+                iconColorClass="text-emerald-600 dark:text-emerald-400"
+                onViewAll={() => setSelectedCategory('Cycle')}
+                onProductClick={handleProductClick}
+                limit={20}
+              />
+              <CategorySection
+                title="Other Essentials"
+                categoryFilter="Other"
+                icon={Package}
+                iconClassName="bg-slate-100 dark:bg-slate-800"
+                iconColorClass="text-slate-600 dark:text-slate-400"
+                onViewAll={() => setSelectedCategory('Other')}
+                onProductClick={handleProductClick}
+                limit={20}
+              />
             </div>
           ) : (
             <>
+              {selectedCategory !== 'all' && categoryConfig[selectedCategory] && (
+                <div className="flex items-center gap-3 mb-6">
+                  <div className={`p-2.5 rounded-xl ${categoryConfig[selectedCategory].bg} dark:bg-opacity-20`}>
+                    {/* Render the specific icon dynamically */}
+                    {(() => {
+                      const Icon = categoryConfig[selectedCategory].icon;
+                      return <Icon className={`w-6 h-6 ${categoryConfig[selectedCategory].color} dark:text-white`} />;
+                    })()}
+                  </div>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                    {categoryConfig[selectedCategory].label}
+                  </h2>
+                </div>
+              )}
               {isLoading ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                   {Array.from({ length: 8 }).map((_, i) => (

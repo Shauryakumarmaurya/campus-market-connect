@@ -263,109 +263,109 @@ export function Navbar() {
 
         {/* Mobile Menu Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-emerald-100/50 dark:border-emerald-900/30 bg-white/95 dark:bg-[rgba(11,15,26,0.95)] backdrop-blur-xl">
-            <div className="container mx-auto px-4 py-4 space-y-3">
-              {user ? (
-                <>
-                  {/* User Info */}
-                  <div className="flex items-center gap-3 pb-3 border-b border-slate-200 dark:border-slate-700">
-                    <Avatar className="h-10 w-10 border-2 border-emerald-100">
-                      <AvatarFallback className="bg-emerald-100 text-emerald-700 font-medium">
-                        {getInitials(profile?.full_name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium text-slate-900 dark:text-white">{profile?.full_name || 'User'}</p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">{profile?.email}</p>
+          <>
+            {/* Backdrop overlay - closes menu on click */}
+            <div
+              className="fixed inset-0 bg-black/20 dark:bg-black/40 z-40 md:hidden"
+              onClick={closeMobileMenu}
+              aria-hidden="true"
+            />
+            <div className="md:hidden border-t border-emerald-100/50 dark:border-emerald-900/30 bg-white/95 dark:bg-[rgba(11,15,26,0.95)] backdrop-blur-xl relative z-50">
+              <div className="container mx-auto px-4 py-4 space-y-3">
+                {user ? (
+                  <>
+                    {/* User Info */}
+                    <div className="flex items-center gap-3 pb-3 border-b border-slate-200 dark:border-slate-700">
+                      <Avatar className="h-10 w-10 border-2 border-emerald-100">
+                        <AvatarFallback className="bg-emerald-100 text-emerald-700 font-medium">
+                          {getInitials(profile?.full_name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium text-slate-900 dark:text-white">{profile?.full_name || 'User'}</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">{profile?.email}</p>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Sell Item Button */}
-                  <Button
-                    onClick={() => {
-                      setSellModalOpen(true);
-                      closeMobileMenu();
-                    }}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Sell Item
-                  </Button>
-
-                  {/* Navigation Links */}
-                  <div className="space-y-1">
-                    <Link
-                      to="/profile/wishlist"
-                      onClick={closeMobileMenu}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
-                    >
-                      <Heart className="h-5 w-5 text-emerald-600" />
-                      Wishlist
-                    </Link>
-
-                    <Link
-                      to="/profile/cart"
-                      onClick={closeMobileMenu}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
-                    >
-                      <ShoppingCart className="h-5 w-5 text-emerald-600" />
-                      My Cart
-                    </Link>
-                    <Link
-                      to="/profile/listings"
-                      onClick={closeMobileMenu}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
-                    >
-                      <Package className="h-5 w-5 text-emerald-600" />
-                      My Listings
-                    </Link>
-                    <Link
-                      to="/profile/edit"
-                      onClick={closeMobileMenu}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
-                    >
-                      <UserPen className="h-5 w-5 text-emerald-600" />
-                      Edit Profile
-                    </Link>
-                  </div>
-
-                  {/* Theme Toggle & Logout */}
-                  <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200">
-                      <span className="text-sm">Theme</span>
-                      {/* Theme toggle moved to header */}
-                    </div>
+                    {/* Sell Item Button */}
                     <Button
-                      variant="ghost"
-                      onClick={handleSignOut}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      onClick={() => {
+                        setSellModalOpen(true);
+                        closeMobileMenu();
+                      }}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
                     >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Logout
+                      <Plus className="h-4 w-4 mr-2" />
+                      Sell Item
                     </Button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* Guest Navigation */}
-                  <div className="flex items-center justify-between pb-3">
-                    <span className="text-sm text-slate-500 dark:text-slate-400">Theme</span>
-                    <ThemeToggle />
-                  </div>
-                  <Link to="/auth" onClick={closeMobileMenu}>
-                    <Button variant="outline" className="w-full mb-2">
-                      Sign In
-                    </Button>
-                  </Link>
-                  <Link to="/auth" onClick={closeMobileMenu}>
-                    <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
-                      Get Started
-                    </Button>
-                  </Link>
-                </>
-              )}
+
+                    {/* Navigation Links */}
+                    <div className="space-y-1">
+                      <Link
+                        to="/profile/wishlist"
+                        onClick={closeMobileMenu}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
+                      >
+                        <Heart className="h-5 w-5 text-emerald-600" />
+                        Wishlist
+                      </Link>
+
+                      <Link
+                        to="/profile/cart"
+                        onClick={closeMobileMenu}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
+                      >
+                        <ShoppingCart className="h-5 w-5 text-emerald-600" />
+                        My Cart
+                      </Link>
+                      <Link
+                        to="/profile/listings"
+                        onClick={closeMobileMenu}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
+                      >
+                        <Package className="h-5 w-5 text-emerald-600" />
+                        My Listings
+                      </Link>
+                      <Link
+                        to="/profile/edit"
+                        onClick={closeMobileMenu}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
+                      >
+                        <UserPen className="h-5 w-5 text-emerald-600" />
+                        Edit Profile
+                      </Link>
+                    </div>
+
+                    {/* Logout Button */}
+                    <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+                      <Button
+                        variant="ghost"
+                        onClick={handleSignOut}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Logout
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Guest Navigation */}
+                    <Link to="/auth" onClick={closeMobileMenu}>
+                      <Button variant="outline" className="w-full mb-2">
+                        Sign In
+                      </Button>
+                    </Link>
+                    <Link to="/auth" onClick={closeMobileMenu}>
+                      <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+                        Get Started
+                      </Button>
+                    </Link>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
+          </>
         )}
       </nav>
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -54,6 +54,7 @@ export default function Index() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { productId } = useParams<{ productId: string }>();
   const searchQuery = searchParams.get('search') || '';
 
   const [heroInput, setHeroInput] = useState(searchQuery);
@@ -64,6 +65,26 @@ export default function Index() {
   useEffect(() => {
     setHeroInput(searchQuery);
   }, [searchQuery]);
+
+  // Auto-open product modal when productId is in URL
+  useEffect(() => {
+    if (productId) {
+      // Fetch the product by ID and open modal
+      const fetchAndOpenProduct = async () => {
+        const { data, error } = await supabase
+          .from('products')
+          .select(`*, profiles:seller_id (full_name, hostel_name, phone_number)`)
+          .eq('id', productId)
+          .single();
+
+        if (!error && data) {
+          setSelectedProduct(data as Product);
+          setDetailsOpen(true);
+        }
+      };
+      fetchAndOpenProduct();
+    }
+  }, [productId]);
 
   const handleSearch = () => {
     if (heroInput.trim()) {

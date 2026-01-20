@@ -71,6 +71,7 @@ export type Database = {
           full_name: string | null
           hostel_name: string | null
           id: string
+          is_admin: boolean | null
           phone_number: string | null
         }
         Insert: {
@@ -79,6 +80,7 @@ export type Database = {
           full_name?: string | null
           hostel_name?: string | null
           id: string
+          is_admin?: boolean | null
           phone_number?: string | null
         }
         Update: {
@@ -87,6 +89,7 @@ export type Database = {
           full_name?: string | null
           hostel_name?: string | null
           id?: string
+          is_admin?: boolean | null
           phone_number?: string | null
         }
         Relationships: []
@@ -248,6 +251,48 @@ export type Database = {
           {
             foreignKeyName: "messages_sender_id_fkey"
             columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      market_orders: {
+        Row: {
+          id: string
+          product_id: string
+          buyer_id: string
+          price: number
+          status: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          buyer_id: string
+          price: number
+          status?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          buyer_id?: string
+          price?: number
+          status?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "market_orders_buyer_id_fkey"
+            columns: ["buyer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]

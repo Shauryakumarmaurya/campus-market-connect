@@ -15,6 +15,7 @@ import MyListings from "./pages/profile/MyListings";
 import MyCart from "./pages/profile/MyCart";
 import MyWishlist from "./pages/profile/MyWishlist";
 import EditProfile from "./pages/profile/EditProfile";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
             <CartProvider>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/products/:productId" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/messages" element={<Messages />} />
@@ -36,6 +38,7 @@ const App = () => (
                 <Route path="/profile/cart" element={<MyCart />} />
                 <Route path="/profile/wishlist" element={<MyWishlist />} />
                 <Route path="/profile/edit" element={<EditProfile />} />
+                <Route path="/admin" element={<Admin />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </CartProvider>

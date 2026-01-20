@@ -87,7 +87,23 @@ export default function Auth() {
         setShowResetEmailSentDialog(true);
       }
     } catch (error: any) {
-      toast.error(error.message || 'Something went wrong');
+      // Handle unverified duplicate signup gracefully
+      const errorMessage = error.message?.toLowerCase() || '';
+      if (mode === 'signup' && (errorMessage.includes('user already registered') || errorMessage.includes('duplicate'))) {
+        // Resend verification email instead of showing error
+        try {
+          await supabase.auth.resend({
+            type: 'signup',
+            email: formData.email,
+          });
+          toast.success('Account already exists! We have sent a new verification link to your email.');
+          setShowSuccessDialog(true);
+        } catch (resendError) {
+          toast.error('Unable to resend verification email. Please try again later.');
+        }
+      } else {
+        toast.error(error.message || 'Something went wrong');
+      }
     } finally {
       setLoading(false);
     }

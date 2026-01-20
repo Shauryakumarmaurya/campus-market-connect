@@ -15,7 +15,6 @@ interface Conversation {
     id: number;
     product_id: string;
     buyer_id: string;
-    seller_id: string;
     created_at: string;
     unread_count: number;
     product?: {
@@ -23,12 +22,9 @@ interface Conversation {
         title: string;
         price: number;
         image_url: string | null;
+        seller_id: string;
     };
     buyer?: {
-        full_name: string;
-        hostel_name: string;
-    };
-    seller?: {
         full_name: string;
         hostel_name: string;
     };
@@ -59,15 +55,15 @@ export default function Messages() {
 
         setIsLoading(true);
         try {
+            // Fetch conversations where user is either buyer OR seller (via products table)
             const { data: convs, error } = await supabase
                 .from('conversations')
                 .select(`
-                    id, product_id, buyer_id, seller_id, created_at,
-                    product:products(id, title, price, image_url),
-                    buyer:profiles!buyer_id(full_name, hostel_name),
-                    seller:profiles!seller_id(full_name, hostel_name)
+                    id, product_id, buyer_id, created_at,
+                    product:products!inner(id, title, price, image_url, seller_id),
+                    buyer:profiles!buyer_id(full_name, hostel_name)
                 `)
-                .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`);
+                .or(`buyer_id.eq.${user.id},product.seller_id.eq.${user.id}`);
 
             if (error) throw error;
 
@@ -174,7 +170,7 @@ export default function Messages() {
     const filteredConversations = conversations.filter((conv) => {
         if (activeFilter === 'all') return true;
         if (activeFilter === 'buying') return conv.buyer_id === user?.id;
-        if (activeFilter === 'selling') return conv.seller_id === user?.id;
+        if (activeFilter === 'selling') return conv.product?.seller_id === user?.id;
         return true;
     });
 
@@ -190,10 +186,10 @@ export default function Messages() {
     };
 
     const getOtherPartyName = (conv: Conversation) => {
-        if (user?.id === conv.seller_id) {
+        if (user?.id === conv.product?.seller_id) {
             return conv.buyer?.full_name || 'Buyer';
         }
-        return conv.seller?.full_name || 'Seller';
+        return 'Seller';
     };
 
     const handleConversationClick = async (conv: Conversation) => {
@@ -217,7 +213,7 @@ export default function Messages() {
 
     // Counts for tabs
     const buyingCount = conversations.filter(c => c.buyer_id === user?.id).length;
-    const sellingCount = conversations.filter(c => c.seller_id === user?.id).length;
+    const sellingCount = conversations.filter(c => c.product?.seller_id === user?.id).length;
 
     if (authLoading) {
         return (
@@ -331,14 +327,8 @@ export default function Messages() {
                             const isMeBuyer = conv.buyer_id === user?.id;
                             const isSeller = !isMeBuyer;
 
-                            // 1. Determine the "Other Party" object
-                            const otherPartyProfile = isMeBuyer ? conv.seller : conv.buyer;
-                            // 2. Extract the name safely
-                            const displayName = getSafeName(otherPartyProfile);
-                            // 3. Debugging (Optional: Remove later)
-                            if (displayName === 'Unknown User') {
-                                console.log('Name extraction failed for:', isMeBuyer ? 'Seller' : 'Buyer', otherPartyProfile);
-                            }
+                            // Get display name using the helper function
+                            const displayName = getOtherPartyName(conv);
 
                             const isLastMessageFromOther = conv.last_message?.sender_id !== user?.id;
                             const hasUnread = conv.unread_count > 0;
@@ -449,8 +439,8 @@ export default function Messages() {
                     productId={selectedConversation.product_id}
                     productTitle={selectedConversation.product?.title || 'Product'}
                     productPrice={selectedConversation.product?.price}
-                    sellerId={selectedConversation.seller_id}
-                    sellerName={getSafeName(selectedConversation.seller)}
+                    sellerId={selectedConversation.product?.seller_id || ''}
+                    sellerName={'Seller'}
                     buyerId={selectedConversation.buyer_id}
                     buyerName={getSafeName(selectedConversation.buyer)}
                 />

@@ -15,6 +15,7 @@ interface Conversation {
     id: number;
     product_id: string;
     buyer_id: string;
+    seller_id: string;
     created_at: string;
     unread_count: number;
     product?: {
@@ -55,15 +56,16 @@ export default function Messages() {
 
         setIsLoading(true);
         try {
-            // Fetch conversations where user is either buyer OR seller (via products table)
+            // Fetch conversations where user is either buyer OR seller
+            // Use the direct seller_id column on conversations table (not product.seller_id)
             const { data: convs, error } = await supabase
                 .from('conversations')
                 .select(`
-                    id, product_id, buyer_id, created_at,
-                    product:products!inner(id, title, price, image_url, seller_id),
-                    buyer:profiles!buyer_id(full_name, hostel_name)
+                    id, product_id, buyer_id, seller_id, created_at,
+                    product:products!conversations_product_id_fkey(id, title, price, image_url, seller_id),
+                    buyer:profiles!conversations_buyer_id_fkey(full_name, hostel_name)
                 `)
-                .or(`buyer_id.eq.${user.id},product.seller_id.eq.${user.id}`);
+                .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`);
 
             if (error) throw error;
 
@@ -170,7 +172,7 @@ export default function Messages() {
     const filteredConversations = conversations.filter((conv) => {
         if (activeFilter === 'all') return true;
         if (activeFilter === 'buying') return conv.buyer_id === user?.id;
-        if (activeFilter === 'selling') return conv.product?.seller_id === user?.id;
+        if (activeFilter === 'selling') return conv.seller_id === user?.id;
         return true;
     });
 
@@ -186,7 +188,7 @@ export default function Messages() {
     };
 
     const getOtherPartyName = (conv: Conversation) => {
-        if (user?.id === conv.product?.seller_id) {
+        if (user?.id === conv.seller_id) {
             return conv.buyer?.full_name || 'Buyer';
         }
         return 'Seller';
@@ -213,7 +215,7 @@ export default function Messages() {
 
     // Counts for tabs
     const buyingCount = conversations.filter(c => c.buyer_id === user?.id).length;
-    const sellingCount = conversations.filter(c => c.product?.seller_id === user?.id).length;
+    const sellingCount = conversations.filter(c => c.seller_id === user?.id).length;
 
     if (authLoading) {
         return (
@@ -439,7 +441,7 @@ export default function Messages() {
                     productId={selectedConversation.product_id}
                     productTitle={selectedConversation.product?.title || 'Product'}
                     productPrice={selectedConversation.product?.price}
-                    sellerId={selectedConversation.product?.seller_id || ''}
+                    sellerId={selectedConversation.seller_id}
                     sellerName={'Seller'}
                     buyerId={selectedConversation.buyer_id}
                     buyerName={getSafeName(selectedConversation.buyer)}

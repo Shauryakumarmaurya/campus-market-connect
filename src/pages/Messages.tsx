@@ -24,6 +24,9 @@ interface Conversation {
         price: number;
         image_url: string | null;
         seller_id: string;
+        seller?: {
+            full_name: string;
+        };
     };
     buyer?: {
         full_name: string;
@@ -62,7 +65,10 @@ export default function Messages() {
                 .from('conversations')
                 .select(`
                     id, product_id, buyer_id, seller_id, created_at,
-                    product:products!conversations_product_id_fkey(id, title, price, image_url, seller_id),
+                    product:products!conversations_product_id_fkey(
+                        id, title, price, image_url, seller_id,
+                        seller:profiles!products_seller_id_fkey(full_name)
+                    ),
                     buyer:profiles!conversations_buyer_id_fkey(full_name, hostel_name)
                 `)
                 .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`);
@@ -191,7 +197,7 @@ export default function Messages() {
         if (user?.id === conv.seller_id) {
             return conv.buyer?.full_name || 'Buyer';
         }
-        return 'Seller';
+        return conv.product?.seller?.full_name || 'Seller';
     };
 
     const handleConversationClick = async (conv: Conversation) => {
@@ -442,7 +448,7 @@ export default function Messages() {
                     productTitle={selectedConversation.product?.title || 'Product'}
                     productPrice={selectedConversation.product?.price}
                     sellerId={selectedConversation.seller_id}
-                    sellerName={'Seller'}
+                    sellerName={selectedConversation.product?.seller?.full_name || 'Seller'}
                     buyerId={selectedConversation.buyer_id}
                     buyerName={getSafeName(selectedConversation.buyer)}
                 />

@@ -43,7 +43,7 @@ export default function Auth() {
         });
         if (error) throw error;
         toast.success('Welcome back!');
-        navigate('/');
+        navigate('/', { replace: true });
       } else if (mode === 'signup') {
         // Validate IITD email domain
         const emailDomain = formData.email.split('@')[1]?.toLowerCase();

@@ -16,6 +16,7 @@ import MyCart from "./pages/profile/MyCart";
 import MyWishlist from "./pages/profile/MyWishlist";
 import EditProfile from "./pages/profile/EditProfile";
 import Admin from "./pages/Admin";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -33,12 +34,37 @@ const App = () => (
                 <Route path="/products/:productId" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/profile/listings" element={<MyListings />} />
-                <Route path="/profile/cart" element={<MyCart />} />
-                <Route path="/profile/wishlist" element={<MyWishlist />} />
-                <Route path="/profile/edit" element={<EditProfile />} />
-                <Route path="/admin" element={<Admin />} />
+
+                <Route path="/messages" element={
+                  <ProtectedRoute>
+                    <Messages />
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile/listings" element={
+                  <ProtectedRoute>
+                    <MyListings />
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile/cart" element={
+                  <ProtectedRoute>
+                    <MyCart />
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile/wishlist" element={
+                  <ProtectedRoute>
+                    <MyWishlist />
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile/edit" element={
+                  <ProtectedRoute>
+                    <EditProfile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin" element={
+                  <ProtectedRoute>
+                    <Admin />
+                  </ProtectedRoute>
+                } />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </CartProvider>

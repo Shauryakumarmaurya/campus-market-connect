@@ -51,11 +51,13 @@ export default function Auth() {
           throw new Error('Only IIT Delhi email addresses (@iitd.ac.in) are allowed');
         }
 
-        const phoneRegex = /^\+?[1-9]\d{9,14}$/;
+        const phoneRegex = /^[6-9]\d{9}$/;
         const cleanPhone = formData.phoneNumber.replace(/[\s-]/g, '');
         if (!phoneRegex.test(cleanPhone)) {
-          throw new Error('Please enter a valid phone number with country code (e.g., +919876543210)');
+          throw new Error('Please enter a valid 10-digit Indian phone number starting with 6-9');
         }
+
+        const fullPhoneNumber = `+91${cleanPhone}`;
 
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email: formData.email,
@@ -73,7 +75,7 @@ export default function Auth() {
             email: formData.email.trim(),
             full_name: formData.fullName.trim(),
             hostel_name: formData.hostelName.trim(),
-            phone_number: cleanPhone,
+            phone_number: fullPhoneNumber,
           });
 
           if (profileError) throw profileError;
@@ -249,15 +251,23 @@ export default function Auth() {
 
                   <div>
                     <Label htmlFor="phoneNumber" className="dark:text-gray-200">WhatsApp Number</Label>
-                    <Input
-                      id="phoneNumber"
-                      type="tel"
-                      value={formData.phoneNumber}
-                      onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                      placeholder="+919876543210"
-                      className="dark:bg-gray-900 dark:border-gray-700"
-                      required
-                    />
+                    <div className="relative">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium z-10">
+                        +91
+                      </div>
+                      <Input
+                        id="phoneNumber"
+                        type="tel"
+                        value={formData.phoneNumber}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                          setFormData({ ...formData, phoneNumber: value });
+                        }}
+                        placeholder="9876543210"
+                        className="dark:bg-gray-900 dark:border-gray-700 pl-12"
+                        required
+                      />
+                    </div>
                   </div>
                 </>
               )}

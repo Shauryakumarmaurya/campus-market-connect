@@ -113,11 +113,11 @@ export function CategorySection({
         return (
             <section className="mb-8">
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-bold text-slate-900">{title}</h2>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">{title}</h2>
                 </div>
                 <div className="flex flex-col items-center justify-center p-8 bg-slate-50 dark:bg-[#161B22] rounded-xl border border-dashed border-gray-200 dark:border-gray-800">
                     <Package className="h-8 w-8 text-gray-300 mb-2" />
-                    <p className="text-sm text-gray-500 font-medium">No active listings in this category right now</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">No active listings in this category right now</p>
                 </div>
             </section>
         );
@@ -133,7 +133,7 @@ export function CategorySection({
                             <Icon className={`w-5 h-5 ${iconColorClass}`} />
                         </div>
                     )}
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-gray-100">{title}</h2>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">{title}</h2>
                 </div>
                 {onViewAll && (
                     <button

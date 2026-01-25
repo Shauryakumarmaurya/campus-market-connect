@@ -12,9 +12,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, Store, Package, ShoppingCart, UserPen, LogOut, Heart, Menu, X, MessageSquare, LifeBuoy } from 'lucide-react';
+import { Plus, Store, Package, ShoppingCart, UserPen, LogOut, Heart, Menu, X, MessageSquare, LifeBuoy, Download } from 'lucide-react';
 import { SellItemModal } from './SellItemModal';
 import { ThemeToggle } from './ThemeToggle';
+import { usePWA } from '@/hooks/use-pwa';
+import { InstallPwaModal } from './InstallPwaModal';
 
 export function Navbar() {
   const { user, profile, signOut } = useAuth();
@@ -24,6 +26,16 @@ export function Navbar() {
   const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
+  const { isInstallable, isIOS, installApp } = usePWA();
+  const [showIosInstall, setShowIosInstall] = useState(false);
+
+  const handleInstallClick = () => {
+    if (isIOS) {
+      setShowIosInstall(true);
+    } else {
+      installApp();
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -197,6 +209,13 @@ export function Navbar() {
                         Edit Profile
                       </Link>
                     </DropdownMenuItem>
+
+                    {(isInstallable || isIOS) && (
+                      <DropdownMenuItem onClick={handleInstallClick} className="cursor-pointer">
+                        <Download className="h-4 w-4 mr-2" />
+                        Install App
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600 focus:text-red-600">
                       <LogOut className="h-4 w-4 mr-2" />
@@ -334,6 +353,19 @@ export function Navbar() {
                         <UserPen className="h-5 w-5 text-emerald-600" />
                         Edit Profile
                       </Link>
+
+                      {(isInstallable || isIOS) && (
+                        <button
+                          onClick={() => {
+                            handleInstallClick();
+                            closeMobileMenu();
+                          }}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors w-full text-left"
+                        >
+                          <Download className="h-5 w-5 text-emerald-600" />
+                          Install App
+                        </button>
+                      )}
                     </div>
 
                     {/* Logout Button */}
@@ -370,6 +402,7 @@ export function Navbar() {
       </nav>
 
       <SellItemModal open={sellModalOpen} onOpenChange={setSellModalOpen} />
+      <InstallPwaModal open={showIosInstall} onOpenChange={setShowIosInstall} />
     </>
   );
 }

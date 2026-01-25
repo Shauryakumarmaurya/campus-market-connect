@@ -1,0 +1,21 @@
+{
+    "name": "IITD.Store | Campus Marketplace",
+    "short_name": "IITD.Store",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#10B981",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "/icon-512.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "/icon-512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ]
+}

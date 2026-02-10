@@ -46,14 +46,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Allowed email domains for Google Sign-In
+  const ALLOWED_DOMAINS = ['iitd.ac.in', 'gmail.com'];
+
+  const isAllowedDomain = (email: string | undefined): boolean => {
+    if (!email) return false;
+    const domain = email.split('@')[1]?.toLowerCase();
+    return ALLOWED_DOMAINS.includes(domain);
+  };
+
   useEffect(() => {
     // Set up auth state listener BEFORE checking session
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
 
         if (session?.user) {
+          // Check if user's email domain is allowed
+          const userEmail = session.user.email;
+          if (!isAllowedDomain(userEmail)) {
+            // Sign out unauthorized domain
+            console.error(`Unauthorized domain: ${userEmail}`);
+            await supabase.auth.signOut();
+            setUser(null);
+            setSession(null);
+            setProfile(null);
+            // Show error message (toast will be handled by the component)
+            window.dispatchEvent(new CustomEvent('unauthorized-domain', {
+              detail: { email: userEmail }
+            }));
+            setLoading(false);
+            return;
+          }
+
           // Use setTimeout to avoid Supabase deadlock
           setTimeout(() => fetchProfile(session.user.id), 0);
         } else {

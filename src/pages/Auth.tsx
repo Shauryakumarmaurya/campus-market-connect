@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import GoogleSignIn from '@/components/GoogleSignIn';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -343,15 +344,32 @@ export default function Auth() {
             </form>
 
             {mode !== 'forgot-password' && (
-              <div className="mt-8 text-center">
-                <button
-                  type="button"
-                  onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-                  className="text-sm font-semibold text-[#10B981] hover:underline"
-                >
-                  {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
-                </button>
-              </div>
+              <>
+                {/* Divider */}
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300 dark:border-gray-700" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white dark:bg-[#0B0F1A] text-gray-500">
+                      or continue with
+                    </span>
+                  </div>
+                </div>
+
+                {/* Google Sign-In Button */}
+                <GoogleSignIn />
+
+                <div className="mt-8 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+                    className="text-sm font-semibold text-[#10B981] hover:underline"
+                  >
+                    {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>

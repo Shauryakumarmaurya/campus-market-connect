@@ -30,10 +30,15 @@ export function Navbar() {
   const [showIosInstall, setShowIosInstall] = useState(false);
 
   const handleInstallClick = () => {
+    // Scenario A: Android/Desktop - Trigger native install prompt
+    if (isInstallable) {
+      installApp();
+      return;
+    }
+
+    // Scenario B: iOS - Show instructions modal
     if (isIOS) {
       setShowIosInstall(true);
-    } else {
-      installApp();
     }
   };
 

@@ -18,11 +18,13 @@ import EditProfile from "./pages/profile/EditProfile";
 import Admin from "./pages/Admin";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProfileCompletionModal from "./components/ProfileCompletionModal";
+import { Analytics } from "@vercel/analytics/react";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <Analytics />
     <ThemeProvider defaultTheme="light" storageKey="campus-market-theme">
       <TooltipProvider>
         <Toaster />

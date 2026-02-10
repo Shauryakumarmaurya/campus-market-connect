@@ -35,11 +35,12 @@ export default function ProfileCompletionModal() {
             setIsOpen(isIncomplete);
 
             // Pre-fill existing data if any (e.g. they might have name but no hostel)
-            if (profile) {
+            // Pre-fill existing data if any (or from Google metadata)
+            if (profile || user.user_metadata) {
                 setFormData(prev => ({
-                    fullName: profile.full_name || prev.fullName,
-                    hostelName: profile.hostel_name || prev.hostelName,
-                    phoneNumber: profile.phone_number ? profile.phone_number.replace('+91', '') : prev.phoneNumber,
+                    fullName: profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || prev.fullName,
+                    hostelName: profile?.hostel_name || prev.hostelName,
+                    phoneNumber: profile?.phone_number ? profile.phone_number.replace('+91', '') : prev.phoneNumber,
                 }));
             }
         } else {

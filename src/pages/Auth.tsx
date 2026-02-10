@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Loader2, Store, Mail, CheckCircle2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Store, Mail, CheckCircle2, ArrowLeft, Eye, EyeOff, ShieldCheck, MessageSquare, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 
 type AuthMode = 'login' | 'signup' | 'forgot-password';
@@ -368,6 +368,32 @@ export default function Auth() {
                   >
                     {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
                   </button>
+                </div>
+
+                {/* Trust Signals */}
+                {/* Trust Signals */}
+                <div className="mt-12 grid grid-cols-3 gap-3">
+                  <div className="bg-slate-50 dark:bg-[#161B22] rounded-xl p-2 border border-gray-100 dark:border-gray-800 text-center flex flex-col items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-1.5">
+                      <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <h3 className="font-semibold text-[10px] text-slate-900 dark:text-white leading-tight mb-0.5">Verified Students</h3>
+                    <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight">IITD Only</p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-[#161B22] rounded-xl p-2 border border-gray-100 dark:border-gray-800 text-center flex flex-col items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-1.5">
+                      <MessageSquare className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <h3 className="font-semibold text-[10px] text-slate-900 dark:text-white leading-tight mb-0.5">Secure Chat</h3>
+                    <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight">No # Shared</p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-[#161B22] rounded-xl p-2 border border-gray-100 dark:border-gray-800 text-center flex flex-col items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mb-1.5">
+                      <MapPin className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                    </div>
+                    <h3 className="font-semibold text-[10px] text-slate-900 dark:text-white leading-tight mb-0.5">Campus Meetup</h3>
+                    <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight">In Hostel</p>
+                  </div>
                 </div>
               </>
             )}

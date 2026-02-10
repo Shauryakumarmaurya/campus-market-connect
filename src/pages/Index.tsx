@@ -183,7 +183,7 @@ export default function Index() {
                 <span className="text-emerald-600">IIT Delhi</span>
               </h1>
               <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-                Buy trusted items from seniors or sell your old gear in seconds.
+                The trusted platform where college students can buy and sell old items, gear, and essentials.
               </p>
             </div>
 
@@ -244,30 +244,7 @@ export default function Index() {
               </Button>
             </div>
 
-            {/* How it Works */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-              <div className="bg-white dark:bg-[#161B22] rounded-xl p-3 border border-gray-200 dark:border-gray-800 text-center flex flex-col items-center">
-                <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-2">
-                  <ShieldCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                </div>
-                <h3 className="font-semibold text-sm text-slate-900 dark:text-white">Verified Students</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Login with IITD Webmail</p>
-              </div>
-              <Link to="/messages" className="bg-white dark:bg-[#161B22] rounded-xl p-3 border border-gray-200 dark:border-gray-800 text-center cursor-pointer hover:shadow-md hover:scale-105 transition-all duration-200 flex flex-col items-center">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-2">
-                  <MessageSquare className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <h3 className="font-semibold text-sm text-slate-900 dark:text-white">Secure Chat</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">No phone numbers shared</p>
-              </Link>
-              <div className="bg-white dark:bg-[#161B22] rounded-xl p-3 border border-gray-200 dark:border-gray-800 text-center flex flex-col items-center">
-                <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mb-2">
-                  <MapPin className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                </div>
-                <h3 className="font-semibold text-sm text-slate-900 dark:text-white">Campus Meetup</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Exchange in your hostel</p>
-              </div>
-            </div>
+
           </div>
         </section>
 
@@ -443,9 +420,37 @@ export default function Index() {
             </>
           )}
         </section>
+        </section>
+
+        {/* How it Works - Moved to Bottom */}
+        <section className="container mx-auto px-4 py-8 border-t border-gray-100 dark:border-gray-800">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+            <div className="bg-white dark:bg-[#161B22] rounded-xl p-4 border border-gray-200 dark:border-gray-800 text-center flex flex-col items-center">
+              <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-3">
+                <ShieldCheck className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <h3 className="font-semibold text-base text-slate-900 dark:text-white mb-1">Verified Students</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Login with IITD Webmail</p>
+            </div>
+            <Link to="/messages" className="bg-white dark:bg-[#161B22] rounded-xl p-4 border border-gray-200 dark:border-gray-800 text-center cursor-pointer hover:shadow-md hover:scale-105 transition-all duration-200 flex flex-col items-center">
+              <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-3">
+                <MessageSquare className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h3 className="font-semibold text-base text-slate-900 dark:text-white mb-1">Secure Chat</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400">No phone numbers shared</p>
+            </Link>
+            <div className="bg-white dark:bg-[#161B22] rounded-xl p-4 border border-gray-200 dark:border-gray-800 text-center flex flex-col items-center">
+              <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mb-3">
+                <MapPin className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+              </div>
+              <h3 className="font-semibold text-base text-slate-900 dark:text-white mb-1">Campus Meetup</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Exchange in your hostel</p>
+            </div>
+          </div>
+        </section>
       </main>
 
       <ProductDetailsModal product={selectedProduct} open={detailsOpen} onOpenChange={setDetailsOpen} />
-    </div>
+    </div >
   );
 }

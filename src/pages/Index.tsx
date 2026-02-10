@@ -179,7 +179,7 @@ export default function Index() {
             {/* Headline */}
             <div className="text-center mb-5">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-2">
-                The Marketplace for{' '}
+                The Campus Marketplace for{' '}
                 <span className="text-emerald-600">IIT Delhi</span>
               </h1>
               <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
@@ -420,7 +420,7 @@ export default function Index() {
             </>
           )}
         </section>
-        </section>
+
 
         {/* How it Works - Moved to Bottom */}
         <section className="container mx-auto px-4 py-8 border-t border-gray-100 dark:border-gray-800">

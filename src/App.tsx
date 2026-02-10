@@ -17,6 +17,7 @@ import MyWishlist from "./pages/profile/MyWishlist";
 import EditProfile from "./pages/profile/EditProfile";
 import Admin from "./pages/Admin";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ProfileCompletionModal from "./components/ProfileCompletionModal";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
+            <ProfileCompletionModal />
             <CartProvider>
               <Routes>
                 <Route path="/" element={<Index />} />

@@ -59,7 +59,7 @@ export function CategorySection({
             phone_number
           )
         `)
-                .eq('status', 'active')
+                .eq('status', 'available')
                 .lt('report_count', 10)
 
                 .order('created_at', { ascending: false })

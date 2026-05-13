@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import { uploadImageToCloudinary } from '@/lib/cloudinary';
 
 interface ProductToEdit {
   id: string;
@@ -84,19 +85,8 @@ export function SellItemModal({ open, onOpenChange, productToEdit }: SellItemMod
 
       // Upload new image if provided
       if (imageFile) {
-        const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage
-          .from('marketplace')
-          .upload(fileName, imageFile);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('marketplace')
-          .getPublicUrl(fileName);
-
-        imageUrl = publicUrl;
+        // Upload to Cloudinary instead of Supabase Storage
+        imageUrl = await uploadImageToCloudinary(imageFile);
       }
 
       const productData = {
@@ -121,7 +111,7 @@ export function SellItemModal({ open, onOpenChange, productToEdit }: SellItemMod
         const { error } = await supabase.from('products').insert({
           ...productData,
           seller_id: user.id,
-          status: 'active',
+          status: 'available',
         });
 
         if (error) throw error;

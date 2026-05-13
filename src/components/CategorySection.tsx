@@ -60,7 +60,7 @@ export function CategorySection({
           )
         `)
                 .eq('status', 'available')
-                .lt('report_count', 10)
+                .or('report_count.lt.10,report_count.is.null')
 
                 .order('created_at', { ascending: false })
                 .limit(limit);

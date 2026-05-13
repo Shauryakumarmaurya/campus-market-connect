@@ -131,7 +131,7 @@ export default function Index() {
         .from('products')
         .select(`*, profiles (full_name, hostel_name, phone_number)`)
         .eq('status', 'available')
-        .lt('report_count', 10)
+        .or('report_count.lt.10,report_count.is.null')
         .order('created_at', { ascending: false });
 
       if (user) query = query.neq('seller_id', user.id);

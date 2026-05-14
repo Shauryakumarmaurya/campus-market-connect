@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Trash2, Package, Pencil, CheckCircle2, Plus, Tag } from 'lucide-react';
 import { toast } from 'sonner';
 import { SellItemModal } from '@/components/SellItemModal';
+import { RestoreListingsBanner } from '@/components/RestoreListingsBanner';
 import { formatRupee } from '@/lib/formatRupee';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -116,6 +117,7 @@ export default function MyListings() {
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-background">
             <Navbar />
+            <RestoreListingsBanner />
 
             <main className="container mx-auto px-4 py-8">
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-8">

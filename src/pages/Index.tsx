@@ -11,6 +11,7 @@ import { ProductCardSkeleton } from '@/components/ProductCardSkeleton';
 import { EmptyState } from '@/components/EmptyState';
 import { CategorySection } from '@/components/CategorySection';
 import { ProductDetailsModal } from '@/components/ProductDetailsModal';
+import { RestoreListingsBanner } from '@/components/RestoreListingsBanner';
 import { Button } from '@/components/ui/button';
 import { Plus, Search, ChevronRight, Package, ShieldCheck, MessageSquare, MapPin, Book, Laptop, Bike, FlaskConical, MoreHorizontal, Store, LayoutGrid, Sparkles, Smartphone, BookOpen } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
@@ -171,6 +172,7 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-background">
       <Navbar />
+      <RestoreListingsBanner />
 
       <main className="space-y-6">
         {/* Hero Section */}

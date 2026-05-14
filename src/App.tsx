@@ -15,6 +15,7 @@ import MyListings from "./pages/profile/MyListings";
 import MyCart from "./pages/profile/MyCart";
 import MyWishlist from "./pages/profile/MyWishlist";
 import EditProfile from "./pages/profile/EditProfile";
+import RestoreListings from "./pages/profile/RestoreListings";
 import Admin from "./pages/Admin";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProfileCompletionModal from "./components/ProfileCompletionModal";
@@ -62,6 +63,11 @@ const App = () => (
                 <Route path="/profile/edit" element={
                   <ProtectedRoute>
                     <EditProfile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile/restore" element={
+                  <ProtectedRoute>
+                    <RestoreListings />
                   </ProtectedRoute>
                 } />
                 <Route path="/admin" element={

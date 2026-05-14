@@ -12,10 +12,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, Store, Package, ShoppingCart, UserPen, LogOut, Heart, Menu, X, MessageSquare, LifeBuoy, Download } from 'lucide-react';
+import { Plus, Store, Package, ShoppingCart, UserPen, LogOut, Heart, Menu, X, MessageSquare, LifeBuoy, Download, ArchiveRestore } from 'lucide-react';
 import { SellItemModal } from './SellItemModal';
 import { ThemeToggle } from './ThemeToggle';
 import { usePWA } from '@/hooks/use-pwa';
+import { useOrphanedImages } from '@/hooks/use-orphaned-images';
 import { InstallPwaModal } from './InstallPwaModal';
 
 export function Navbar() {
@@ -28,6 +29,7 @@ export function Navbar() {
   const location = useLocation();
   const { isInstallable, isIOS, installApp } = usePWA();
   const [showIosInstall, setShowIosInstall] = useState(false);
+  const { orphanCount } = useOrphanedImages();
 
   const handleInstallClick = () => {
     // Scenario A: Android/Desktop - Trigger native install prompt
@@ -195,6 +197,18 @@ export function Navbar() {
                       </Link>
                     </DropdownMenuItem>
 
+                    {orphanCount > 0 && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/profile/restore" className="flex items-center cursor-pointer text-amber-700 dark:text-amber-400 focus:text-amber-700">
+                          <ArchiveRestore className="h-4 w-4 mr-2" />
+                          Restore Listings
+                          <span className="ml-auto bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                            {orphanCount}
+                          </span>
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+
                     <DropdownMenuItem asChild>
                       <Link to="/profile/wishlist" className="flex items-center cursor-pointer">
                         <Heart className="h-4 w-4 mr-2" />
@@ -350,6 +364,19 @@ export function Navbar() {
                         <Package className="h-5 w-5 text-emerald-600" />
                         My Listings
                       </Link>
+                      {orphanCount > 0 && (
+                        <Link
+                          to="/profile/restore"
+                          onClick={closeMobileMenu}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 transition-colors"
+                        >
+                          <ArchiveRestore className="h-5 w-5 text-amber-600" />
+                          <span className="flex-1">Restore Listings</span>
+                          <span className="bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                            {orphanCount}
+                          </span>
+                        </Link>
+                      )}
                       <Link
                         to="/profile/edit"
                         onClick={closeMobileMenu}
